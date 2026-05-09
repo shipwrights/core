@@ -1,0 +1,47 @@
+# Example: smallest possible config. Everything is trivial; orchestrator
+# just opens PRs and lets auto-merge ship them. Useful for docs sites,
+# config repos, infrastructure-as-code.
+
+version: 1
+
+branches:
+  integration: main
+  release: main
+  patterns:
+    feature: "feature/<id>-<slug>"
+    fix:     "fix/<id>-<slug>"
+    chore:   "chore/<slug>"
+    scratch: "<feature-branch>--<role>"
+
+roles:
+  - name: gatekeeper
+    agent: bundled
+    capabilities: { can_write: fixup-only }
+    invoke_at: [review]
+
+pipeline:
+  - stage: review
+    owner: [gatekeeper]
+    write_mode: fixup-only
+  - stage: ship
+    owner: [orchestrator]
+
+backlog:
+  source: { kind: files }
+  state_dir: docs/backlog/epics
+
+verify:
+  detected:
+    verify: "echo 'no verification needed'"
+  overrides: {}
+
+merge:
+  strategy: squash
+  auto_merge_labels: ["auto-merge"]
+  block_label: hold
+
+lock:
+  kind: markdown
+
+telemetry:
+  enabled: false

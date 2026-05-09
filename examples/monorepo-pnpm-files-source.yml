@@ -1,0 +1,172 @@
+# Example: Node monorepo (pnpm + turbo) with files-as-backlog.
+# Mirrors the kind of project Shipwright was extracted from.
+
+version: 1
+
+project:
+  name: shop-app
+  languages: [typescript]
+
+branches:
+  integration: dev
+  release: main
+  patterns:
+    feature: "feature/<id>-<slug>"
+    fix:     "fix/<id>-<slug>"
+    chore:   "chore/ops-<slug>"
+    scratch: "<feature-branch>--<role>"
+
+scratch:
+  push_to_remote: false
+  bundle_on_failure: true
+  cleanup_on_integrate: true
+
+roles:
+  - name: po
+    agent: bundled
+    capabilities: { can_write: false }
+    invoke_at: [refine]
+
+  - name: backend
+    agent: bundled
+    capabilities:
+      can_write: true
+      scope:
+        - "apps/api/**"
+        - "packages/contracts/**"
+        - "packages/database/**"
+        - "packages/domain/**"
+    invoke_at: [design-and-build]
+    parallel_with: [frontend, qa]
+
+  - name: frontend
+    agent: bundled
+    capabilities:
+      can_write: true
+      scope:
+        - "apps/web/**"
+        - "packages/contracts/**"
+    invoke_at: [design-and-build]
+    parallel_with: [backend, qa]
+
+  - name: qa
+    agent: bundled
+    capabilities:
+      can_write: tests-only
+      scope:
+        - "**/*.test.ts"
+        - "**/*.spec.ts"
+        - "apps/api/test/**"
+        - "apps/web/src/**/*.test.tsx"
+    invoke_at: [test]
+
+  - name: gatekeeper
+    agent: bundled
+    capabilities: { can_write: fixup-only }
+    invoke_at: [review]
+
+  - name: browser
+    agent: bundled
+    capabilities: { can_write: false }
+    invoke_at: [review-browser]
+
+pipeline:
+  - stage: refine
+    owner: [po]
+    optional_when: "tier == 'trivial' || tier == 'minimal'"
+  - stage: slice
+    owner: [orchestrator]
+    requires: "refine | tier:minimal"
+    freeze_paths: ["packages/contracts/**"]
+  - stage: design-and-build
+    owner: [backend, frontend]
+    parallelism: full
+    on_specialist_failure: bundle-and-escalate
+    on_scope_violation: escalate
+  - stage: integrate
+    owner: [orchestrator]
+    integrate_order: [backend, frontend]
+    on_conflict: escalate
+  - stage: test
+    owner: [qa]
+  - stage: review
+    owner: [gatekeeper]
+    write_mode: fixup-only
+  - stage: review-browser
+    owner: [browser]
+    optional_when: "false"   # auto-evaluated against the diff at runtime
+  - stage: ship
+    owner: [orchestrator]
+
+tier_routing:
+  - if: "epic.size == 'small' && epic.domain == 'docs'"
+    tier: trivial
+  - if: "epic.id starts_with 'audit-' || epic.id starts_with 'ops-'"
+    tier: minimal
+  - if: "epic.size == 'medium'"
+    tier: light
+  - default: full
+
+tiers:
+  trivial:
+    skip_stages: [refine, slice, design-and-build]
+    auto_merge: true
+  minimal:
+    skip_stages: [refine, slice]
+    auto_merge: true
+  light:
+    skip_stages: [refine]
+    auto_merge: false
+  full:
+    skip_stages: []
+    auto_merge: false
+
+backlog:
+  source: { kind: files }
+  state_dir: docs/backlog/epics
+
+verify:
+  detected:
+    install:    "pnpm install"
+    verify:     "pnpm verify"
+    test:       "pnpm test"
+    lint:       "pnpm lint"
+    typecheck:  "pnpm typecheck"
+    format_fix: "pnpm exec biome check --write"
+  overrides: {}
+
+guards:
+  - name: file-length
+    enabled: true
+    rules:
+      - { pattern: "**/*.test.ts", max_lines: 350 }
+      - { pattern: "**/*.ts",      max_lines: 250 }
+    on_violation: block
+  - name: branch-name
+    enabled: true
+    on_violation: block
+  - name: commit-format
+    enabled: true
+    on_violation: block
+
+merge:
+  strategy: rebase
+  stack_depth: 3
+  auto_merge_labels: ["tier:trivial", "tier:minimal"]
+  block_label: do-not-auto-merge
+
+lock:
+  kind: markdown
+  config:
+    stale_after_hours: 48
+
+telemetry:
+  enabled: true
+  log_path: ".shipwright/telemetry.jsonl"
+  budget_per_epic_tokens: 500000
+  on_budget_exceeded: warn
+
+hard_rules:
+  - "Public APIs expose slugs / reference numbers, never raw DB ids"
+  - "Append-only ledgers stay append-only"
+  - "Authorization at the route boundary; UX gating is never security"

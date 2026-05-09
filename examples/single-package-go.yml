@@ -1,0 +1,117 @@
+# Example: single-package Go service with GitHub Issues as the backlog.
+
+version: 1
+
+project:
+  name: my-go-service
+  languages: [go]
+
+branches:
+  integration: main           # small projects often skip a dev branch
+  release: main
+  patterns:
+    feature: "feature/<id>-<slug>"
+    fix:     "fix/<id>-<slug>"
+    chore:   "chore/ops-<slug>"
+    scratch: "<feature-branch>--<role>"
+
+scratch:
+  push_to_remote: false
+  bundle_on_failure: true
+  cleanup_on_integrate: true
+
+roles:
+  - name: po
+    agent: bundled
+    capabilities: { can_write: false }
+    invoke_at: [refine]
+  - name: backend
+    agent: bundled
+    capabilities:
+      can_write: true
+      scope: ["**/*.go", "go.mod", "go.sum"]
+    invoke_at: [design-and-build]
+  - name: qa
+    agent: bundled
+    capabilities:
+      can_write: tests-only
+      scope: ["**/*_test.go"]
+    invoke_at: [test]
+  - name: gatekeeper
+    agent: bundled
+    capabilities: { can_write: fixup-only }
+    invoke_at: [review]
+
+pipeline:
+  - stage: refine
+    owner: [po]
+    optional_when: "tier == 'trivial' || tier == 'minimal'"
+  - stage: slice
+    owner: [orchestrator]
+    requires: "refine | tier:minimal"
+  - stage: design-and-build
+    owner: [backend]
+    parallelism: sequential
+  - stage: integrate
+    owner: [orchestrator]
+    integrate_order: [backend]
+  - stage: test
+    owner: [qa]
+  - stage: review
+    owner: [gatekeeper]
+    write_mode: fixup-only
+  - stage: ship
+    owner: [orchestrator]
+
+tier_routing:
+  - if: "epic.id starts_with 'ops-'"
+    tier: minimal
+  - default: full
+
+tiers:
+  minimal: { skip_stages: [refine, slice], auto_merge: true }
+  full:    { skip_stages: [], auto_merge: false }
+
+backlog:
+  source:
+    kind: github-issues
+    config:
+      repo: "your-org/your-repo"
+      labels: [backlog, ready]
+  state_dir: docs/backlog/epics
+
+verify:
+  detected:
+    install:    "go mod download"
+    test:       "go test ./..."
+    verify:     "go test ./... && go vet ./..."
+    lint:       "go vet ./..."
+    format_fix: "gofmt -w ."
+  overrides: {}
+
+guards:
+  - name: file-length
+    enabled: true
+    rules:
+      - { pattern: "**/*_test.go", max_lines: 700 }
+      - { pattern: "**/*.go",      max_lines: 500 }
+  - name: branch-name
+    enabled: true
+  - name: commit-format
+    enabled: true
+
+merge:
+  strategy: rebase
+  stack_depth: 1            # single-package projects rarely benefit from stacks
+  auto_merge_labels: ["tier:minimal"]
+  block_label: do-not-auto-merge
+
+lock:
+  kind: markdown
+
+telemetry:
+  enabled: true
+
+hard_rules:
+  - "Errors wrap with %w and add context; never silently dropped"
+  - "Public types/funcs documented; godoc clean"
