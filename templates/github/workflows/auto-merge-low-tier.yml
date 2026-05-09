@@ -1,0 +1,44 @@
+# Auto-merge low-tier PRs
+#
+# Enables GitHub native auto-merge ({{merge.strategy}}) on PRs labelled
+# {{merge.auto_merge_labels.0}} or {{merge.auto_merge_labels.1}}, so they
+# merge as soon as required checks pass without manual click.
+#
+# Higher-tier PRs (light, full) keep the human-merge gate. The
+# {{merge.block_label}} label is an escape hatch on any PR.
+#
+# One-time setup (run once per repo when this workflow first lands):
+#   gh label create {{merge.auto_merge_labels.0}} --color cccccc
+#   gh label create {{merge.auto_merge_labels.1}} --color e8e8e8
+#   gh label create {{merge.block_label}} --color d93f0b
+
+name: Auto-merge low-tier PRs
+
+on:
+  pull_request:
+    types: [labeled, opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable-auto-merge:
+    if: >-
+      github.event.pull_request.base.ref == '{{branches.integration}}' &&
+      github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.labels.*.name, '{{merge.block_label}}') &&
+      (
+        contains(github.event.pull_request.labels.*.name, '{{merge.auto_merge_labels.0}}') ||
+        contains(github.event.pull_request.labels.*.name, '{{merge.auto_merge_labels.1}}')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr merge --auto --{{merge.strategy}} --delete-branch \
+            --repo "${{ github.repository }}" \
+            "$PR_NUMBER"

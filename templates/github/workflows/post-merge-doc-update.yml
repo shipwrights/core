@@ -1,0 +1,64 @@
+# Post-merge doc update
+#
+# When a PR merges into {{branches.integration}}, append the merged PR link to
+# the matching epic's `## Related PRs` section (if an epic file's frontmatter id
+# matches the conventional-commit scope in the PR title). Open a follow-up PR
+# labelled {{merge.auto_merge_labels.0}} so the auto-merge workflow picks it up.
+
+name: Post-merge doc update
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-epic-doc:
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == '{{branches.integration}}'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: {{branches.integration}}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run epic-update script
+        id: update
+        env:
+          PR_NUMBER:    ${{ github.event.pull_request.number }}
+          PR_TITLE:     ${{ github.event.pull_request.title }}
+          PR_URL:       ${{ github.event.pull_request.html_url }}
+          EPICS_DIR:    "{{backlog.state_dir}}"
+        run: node scripts/shipwright/update-epic-after-merge.mjs
+
+      - name: Open follow-up PR with the epic update
+        if: steps.update.outputs.changed_file != ''
+        env:
+          GH_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER:     ${{ github.event.pull_request.number }}
+          CHANGED_FILE:  ${{ steps.update.outputs.changed_file }}
+        run: |
+          set -euo pipefail
+          BRANCH="chore/ops-doc-update-pr-${PR_NUMBER}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$CHANGED_FILE"
+          git commit -m "chore(ops): record PR #${PR_NUMBER} on ${CHANGED_FILE##*/}"
+          git push -u origin "$BRANCH"
+          gh pr create \
+            --base {{branches.integration}} \
+            --head "$BRANCH" \
+            --title "chore(ops): record PR #${PR_NUMBER} on ${CHANGED_FILE##*/}" \
+            --body "Auto-generated follow-up to record merged PR #${PR_NUMBER}." \
+            --label {{merge.auto_merge_labels.0}}
