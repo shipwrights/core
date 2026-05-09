@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.claude.com/claude-code/plugin-manifest.schema.json",
+  "name": "shipwright",
+  "version": "0.1.0",
+  "description": "Ship epics with AI specialists. Coordinates designer/architect/QA/reviewer agents across scratch branches and integrates the result into a single PR.",
+  "author": "Shipwright contributors",
+  "license": "MIT",
+  "homepage": "https://github.com/dacostaaboagye/shipwright",
+  "skills": [
+    "skills/shipwright-epic",
+    "skills/shipwright-init",
+    "skills/shipwright-status",
+    "skills/shipwright-upgrade",
+    "skills/shipwright-doctor"
+  ],
+  "agents": [
+    "agents/product-owner-strategist.md",
+    "agents/node-backend-systems-architect.md",
+    "agents/frontend-ui-architect.md",
+    "agents/qa-quality-engineer.md",
+    "agents/code-review-gatekeeper.md",
+    "agents/ux-ui-browser-reviewer.md"
+  ],
+  "commands": {
+    "shipwright:epic": "skills/shipwright-epic/SKILL.md",
+    "shipwright:init": "skills/shipwright-init/SKILL.md",
+    "shipwright:status": "skills/shipwright-status/SKILL.md",
+    "shipwright:upgrade": "skills/shipwright-upgrade/SKILL.md",
+    "shipwright:doctor": "skills/shipwright-doctor/SKILL.md"
+  }
+}

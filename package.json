@@ -1,0 +1,68 @@
+{
+  "name": "@shipwright/core",
+  "version": "0.1.0",
+  "description": "An orchestration framework for shipping epics with AI specialists. Coordinates designer/architect/QA/reviewer roles across scratch branches, integrates results, and ships PRs — without locking you into one workflow.",
+  "type": "module",
+  "main": "./lib/index.mjs",
+  "bin": {
+    "shipwright": "./bin/shipwright.mjs"
+  },
+  "exports": {
+    ".": "./lib/index.mjs",
+    "./schema": "./schemas/shipwright-config.schema.json",
+    "./sources/files": "./sources/files/index.mjs",
+    "./sources/github-issues": "./sources/github-issues/index.mjs",
+    "./guards/file-length": "./guards/file-length.mjs",
+    "./guards/branch-name": "./guards/branch-name.mjs",
+    "./guards/commit-format": "./guards/commit-format.mjs"
+  },
+  "files": [
+    "agents/",
+    "bin/",
+    "guards/",
+    "lib/",
+    "migrations/",
+    "schemas/",
+    "skills/",
+    "sources/",
+    "templates/",
+    "examples/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test tests/",
+    "lint": "biome check .",
+    "format": "biome format . --write",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "ai-agents",
+    "orchestration",
+    "workflow",
+    "epics",
+    "agentic-coding"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dacostaaboagye/shipwright.git"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "typescript": "^5.6.0",
+    "yaml": "^2.6.0",
+    "ajv": "^8.17.0",
+    "minimatch": "^10.0.0"
+  },
+  "dependencies": {
+    "yaml": "^2.6.0",
+    "ajv": "^8.17.0",
+    "minimatch": "^10.0.0"
+  }
+}
