@@ -121,7 +121,15 @@ Stage names map 1:1 to skills under `skills/stages/`. Each stage's owner-role is
 
 ## Status
 
-v0.1.0 — first release. APIs may change before v1.0. Pin exact versions until v1.
+v0.1.1 — first release with publish-ready test coverage. APIs may change before v1.0. Pin exact versions until v1.
+
+## Testing
+
+```bash
+node --test "tests/**/*.test.mjs"
+```
+
+85 tests across 9 files cover: config validation + schema, predicate parser, render-templates (with GitHub Actions `${{ }}` pass-through), verify discovery (npm/pnpm/yarn/go/poetry/uv), file-based source adapter (listAvailable / pickNext / materialize / markStatus / attachPR), markdown lock service (claim / update / release / stale-detection), scope enforcer (in-scope / out-of-scope / frozen-paths), all three built-in guards (file-length / branch-name / commit-format), telemetry (logging + budget warn/escalate/abort), config migrations, pipeline engine (tier resolution / stage skip / parallelism), scratch-branch lifecycle scripts (create / verify-scope / integrate / bundle / update-epic-after-merge), and CLI integration (init / doctor / status / upgrade / help).
 
 ## License
 
