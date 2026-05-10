@@ -1,0 +1,56 @@
+# Publish to npm
+#
+# Triggers when a GitHub release is published. Verifies the tag matches the
+# package.json version, runs the test suite, then publishes with build
+# provenance (cryptographic proof the package was built in this exact run).
+#
+# Requires the NPM_TOKEN repo secret. Generate it as a Granular Access Token
+# at https://www.npmjs.com/settings/dacostaaboagye/tokens with:
+#   - Permissions: @shipwrights org → Read and write
+#   - Bypass 2FA for read+write operations: ENABLED (otherwise CI can't publish)
+#
+# Pre-release tags (e.g. v1.0.0-beta.1) are NOT yet routed to a different npm
+# tag — they'd publish as `latest`. Add `--tag next` handling when first needed.
+
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write   # required for `npm publish --provenance`
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Verify tag matches package.json version
+        run: |
+          set -euo pipefail
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Release tag v$TAG_VERSION does not match package.json version $PKG_VERSION"
+            exit 1
+          fi
+          echo "OK: tag v$TAG_VERSION matches package.json $PKG_VERSION"
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run tests
+        run: node --test "tests/**/*.test.mjs"
+
+      - name: Publish to npm with provenance
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
