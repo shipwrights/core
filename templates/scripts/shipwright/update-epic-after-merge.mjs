@@ -59,8 +59,8 @@ if (!matched) {
 let updated = matched.content;
 const link = `- [PR #${prNumber}](${prUrl}) - \`${prTitle}\``;
 
-if (updated.includes(`/pull/${prNumber})`)) {
-  console.log(`PR #${prNumber} already recorded — no change`);
+if (updated.includes(prUrl)) {
+  console.log(`PR ${prUrl} already recorded — no change`);
   process.exit(0);
 }
 
