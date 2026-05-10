@@ -278,3 +278,44 @@ test("integrate-scratch rebases and fast-forwards on clean diff", () => {
   assert.equal(branches.includes("feature/e-int--backend"), false);
   rmSync(dir, { recursive: true, force: true });
 });
+
+// ---------- v0.1.3 regression — integrate-scratch run from scratch branch ----------
+
+test("integrate-scratch works when run from the scratch branch (not just feature)", () => {
+  const dir = makeRepo();
+  execSync("git checkout -q -b feature/e-from-scratch", { cwd: dir });
+  execSync("git checkout -q -b feature/e-from-scratch--backend", { cwd: dir });
+  writeFileSync(join(dir, "apps/api/src/x.ts"), "export const a = 1;\n");
+  execSync('git add -A && git commit -q -m "feat(backend): add"', { cwd: dir });
+  // Stay on the scratch branch — earlier the script appended --backend
+  // unconditionally producing feature/e-from-scratch--backend--backend.
+  const r = runScript("integrate-scratch.mjs", ["backend"], dir);
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(existsSync(join(dir, "apps/api/src/x.ts")), true);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+// ---------- v0.1.3 regression — verify-scope uses merge-base, not feature tip ----------
+
+test("verify-specialist-scope ignores orchestrator commits on feature since branch", () => {
+  const dir = makeRepo();
+  execSync("git checkout -q -b feature/e-mb", { cwd: dir });
+  // Cut scratch off feature.
+  execSync("git checkout -q -b feature/e-mb--backend", { cwd: dir });
+  writeFileSync(join(dir, "apps/api/src/in-scope.ts"), "export const a = 1;\n");
+  execSync('git add -A && git commit -q -m "feat(backend): in-scope"', { cwd: dir });
+  // Now simulate orchestrator commits on the feature branch AFTER scratch
+  // was cut. These changes touch out-of-scope paths from the backend's
+  // perspective (UI), but they are NOT scratch-side changes.
+  execSync("git checkout -q feature/e-mb", { cwd: dir });
+  writeFileSync(join(dir, "apps/web/src/orch.tsx"), "export const o = 1;\n");
+  execSync('git add -A && git commit -q -m "chore: orch tweak"', { cwd: dir });
+  // Going back to scratch and running scope-check: pre-fix, this would flag
+  // apps/web/src/orch.tsx as an out-of-scope write by backend. Post-fix,
+  // merge-base isolates only what scratch wrote.
+  execSync("git checkout -q feature/e-mb--backend", { cwd: dir });
+  const r = runScript("verify-specialist-scope.mjs", ["backend"], dir);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /scope verified/);
+  rmSync(dir, { recursive: true, force: true });
+});

@@ -17,10 +17,21 @@ if (!role) {
 }
 
 const config = parseYaml(readFileSync(".shipwright.yml", "utf8"));
-const featureBranch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf8" }).trim();
+const currentBranch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf8" }).trim();
 
-const pattern = config.branches.patterns.scratch ?? "<feature-branch>--<role>";
-const scratchBranch = pattern.replace("<feature-branch>", featureBranch).replace("<role>", role);
+// Detect whether the orchestrator is on the feature branch (canonical) or
+// happens to be standing on the scratch branch. Either should work.
+const scratchSuffix = `--${role}`;
+let featureBranch;
+let scratchBranch;
+if (currentBranch.endsWith(scratchSuffix)) {
+  scratchBranch = currentBranch;
+  featureBranch = currentBranch.slice(0, -scratchSuffix.length);
+} else {
+  featureBranch = currentBranch;
+  const pattern = config.branches.patterns.scratch ?? "<feature-branch>--<role>";
+  scratchBranch = pattern.replace("<feature-branch>", featureBranch).replace("<role>", role);
+}
 
 function git(args) {
   return spawnSync("git", args, { stdio: "inherit" });
