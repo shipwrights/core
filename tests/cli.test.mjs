@@ -65,7 +65,7 @@ test("init scaffolds a fresh project in non-interactive mode", () => {
   assert.equal(existsSync(join(dir, "docs/process/in-flight.md")), true);
   // Single git commit was made
   const log = execSync('git log --oneline', { cwd: dir, encoding: "utf8" });
-  assert.match(log, /chore: install @shipwright\/core/);
+  assert.match(log, /chore: install @shipwrights\/core/);
   rmSync(dir, { recursive: true, force: true });
 });
 

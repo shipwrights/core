@@ -1,7 +1,7 @@
 // Backlog source adapter contract.
 //
 // Any package exporting `createSource(config) -> BacklogSource` is a valid
-// adapter. Packages can be `@shipwright/source-<kind>` (auto-discovered by
+// adapter. Packages can be `@shipwrights/source-<kind>` (auto-discovered by
 // kind name) or any npm package referenced by full name in `.shipwright.yml`.
 
 export type EpicStatus =

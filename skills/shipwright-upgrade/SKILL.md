@@ -43,7 +43,7 @@ Three cases:
 ### 4. Show the plan
 
 ```
-Upgrading @shipwright/core: 0.1.0 → 0.2.0
+Upgrading @shipwrights/core: 0.1.0 → 0.2.0
 
 Config migrations:
   - 1-to-2: rename `lock.kind` → `lock.backend`
@@ -68,7 +68,7 @@ Proceed? [y/N]
 3. Update `.shipwright/installed.json` with the new version.
 4. Stage all changes.
 5. If any conflicts: print the conflict list, do NOT commit. Ask user to resolve, then `/shipwright:upgrade --finalize`.
-6. Otherwise: commit `chore: upgrade @shipwright/core to v<version>`.
+6. Otherwise: commit `chore: upgrade @shipwrights/core to v<version>`.
 
 ### 6. Post-upgrade
 

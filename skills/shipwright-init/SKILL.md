@@ -54,7 +54,7 @@ Integration branch? [dev]
 Release branch? [main]
 Verify command? [pnpm verify]
 Format-fix command? [pnpm exec biome check --write]
-Backlog source? [files]   (other options will be available once @shipwright/source-* packages installed)
+Backlog source? [files]   (other options will be available once @shipwrights/source-* packages installed)
 Where do epic files live? [docs/backlog/epics]
 Which roles to enable?
   [x] po
@@ -114,7 +114,7 @@ In a single commit:
 2. Write resolved templates from `templates/` to consumer paths, with `{{token}}` substitution against the config.
 3. Write any `.example` files chosen during conflict resolution.
 4. Stage all changes.
-5. Commit: `chore: install @shipwright/core v<version>`.
+5. Commit: `chore: install @shipwrights/core v<version>`.
 6. Print: `Undo with 'git revert HEAD'.`
 
 ### 7. Post-install

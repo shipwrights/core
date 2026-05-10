@@ -19,15 +19,15 @@ Shipwright is a Claude Code plugin and orchestration framework. It drives an epi
 ## Install
 
 ```bash
-npm install -D @shipwright/core
+npm install -D @shipwrights/core
 # or
-pnpm add -D @shipwright/core
+pnpm add -D @shipwrights/core
 ```
 
 Or as a Claude Code plugin (recommended):
 
 ```
-/plugin add @shipwright/core
+/plugin add @shipwrights/core
 ```
 
 ## Quick start
