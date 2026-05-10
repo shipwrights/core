@@ -49,10 +49,17 @@
     "agentic-coding"
   ],
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dacostaaboagye/shipwright.git"
   },
+  "bugs": {
+    "url": "https://github.com/dacostaaboagye/shipwright/issues"
+  },
+  "homepage": "https://github.com/dacostaaboagye/shipwright#readme",
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
     "typescript": "^5.6.0",
