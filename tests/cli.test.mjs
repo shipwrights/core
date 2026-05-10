@@ -116,6 +116,33 @@ test("status shows 'Nothing in flight' on a fresh init", () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+test("init adds yaml + minimatch to consumer's devDependencies (v0.1.3 fix)", () => {
+  const dir = makeMonorepo();
+  const r = sw(["init", "--non-interactive"], dir);
+  assert.equal(r.status, 0, r.stderr);
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  assert.ok(pkg.devDependencies?.yaml, "yaml should be in devDependencies");
+  assert.ok(pkg.devDependencies?.minimatch, "minimatch should be in devDependencies");
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("init does not duplicate yaml/minimatch if already in dependencies", () => {
+  const dir = makeMonorepo();
+  // Pre-populate package.json with the deps already
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  pkg.dependencies = { yaml: "^2.5.0", minimatch: "^9.0.0" };
+  writeFileSync(join(dir, "package.json"), JSON.stringify(pkg, null, 2));
+  execSync('git add -A && git commit -q -m "deps: pre-existing"', { cwd: dir });
+  sw(["init", "--non-interactive"], dir);
+  const finalPkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  // Existing dependencies entries kept; nothing added to devDependencies
+  assert.equal(finalPkg.dependencies.yaml, "^2.5.0");
+  assert.equal(finalPkg.dependencies.minimatch, "^9.0.0");
+  assert.equal(finalPkg.devDependencies?.yaml, undefined);
+  assert.equal(finalPkg.devDependencies?.minimatch, undefined);
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test("upgrade is a no-op when at current version", () => {
   const dir = makeMonorepo();
   sw(["init", "--non-interactive"], dir);

@@ -50,7 +50,14 @@ if (scope.length === 0) {
 const sliceStage = config.pipeline.find((s) => s.stage === "slice");
 const freezePaths = sliceStage?.freeze_paths ?? [];
 
-const diff = execSync(`git diff --name-only ${baseFeature}..${scratchBranch}`, {
+// Use merge-base so we only see paths the SCRATCH branch changed, not paths
+// the feature branch advanced on after the scratch was cut. Without this,
+// orchestrator commits on the feature branch (e.g. config tweaks) get
+// flagged as out-of-scope writes by the specialist.
+const mergeBase = execSync(`git merge-base ${baseFeature} ${scratchBranch}`, {
+  encoding: "utf8",
+}).trim();
+const diff = execSync(`git diff --name-only ${mergeBase}..${scratchBranch}`, {
   encoding: "utf8",
 })
   .split("\n")
