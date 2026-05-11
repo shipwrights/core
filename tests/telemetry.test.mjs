@@ -19,7 +19,7 @@ test("disabled telemetry writes nothing", () => {
     role: "po",
     durationMs: 1234,
   });
-  const path = join(dir, ".shipwright/telemetry.jsonl");
+  const path = join(dir, ".shipwrights/telemetry.jsonl");
   assert.equal(existsSync(path), false);
   rmSync(dir, { recursive: true, force: true });
 });

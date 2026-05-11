@@ -20,7 +20,7 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PLUGIN_ROOT = join(here, "..");
-const BIN = join(PLUGIN_ROOT, "bin", "shipwright.mjs");
+const BIN = join(PLUGIN_ROOT, "bin", "shipwrights.mjs");
 
 function makeMonorepo() {
   const dir = mkdtempSync(join(tmpdir(), "shipwright-cli-"));
@@ -59,9 +59,9 @@ test("init scaffolds a fresh project in non-interactive mode", () => {
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /Shipwright installed/);
   // Spot check the resulting tree
-  assert.equal(existsSync(join(dir, ".shipwright.yml")), true);
+  assert.equal(existsSync(join(dir, ".shipwrights.yml")), true);
   assert.equal(existsSync(join(dir, ".github/workflows/auto-merge-low-tier.yml")), true);
-  assert.equal(existsSync(join(dir, "scripts/shipwright/integrate-scratch.mjs")), true);
+  assert.equal(existsSync(join(dir, "scripts/shipwrights/integrate-scratch.mjs")), true);
   assert.equal(existsSync(join(dir, "docs/process/in-flight.md")), true);
   // Single git commit was made
   const log = execSync('git log --oneline', { cwd: dir, encoding: "utf8" });
@@ -78,7 +78,7 @@ test("init refuses on dirty working tree without --force", () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test("init refuses to re-run when .shipwright.yml exists", () => {
+test("init refuses to re-run when .shipwrights.yml exists", () => {
   const dir = makeMonorepo();
   sw(["init", "--non-interactive"], dir);
   const r = sw(["init", "--non-interactive"], dir);
@@ -92,7 +92,7 @@ test("init --dry-run writes nothing (with --non-interactive to skip prompts)", (
   const r = sw(["init", "--dry-run", "--non-interactive"], dir);
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /Dry run/);
-  assert.equal(existsSync(join(dir, ".shipwright.yml")), false);
+  assert.equal(existsSync(join(dir, ".shipwrights.yml")), false);
   rmSync(dir, { recursive: true, force: true });
 });
 

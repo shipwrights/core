@@ -16,7 +16,7 @@ The PO agent turns a raw backlog input into a refined epic file.
    - The raw backlog input (item from source).
    - The project context you gathered.
    - The project's epic-file schema (from `<state_dir>/README.md` if present, otherwise the default schema in `templates/docs/backlog/README.md`).
-   - The hard rules from `.shipwright.yml`.
+   - The hard rules from `.shipwrights.yml`.
 4. **Receive the refined epic.** It will be markdown text.
 5. **Write the file.** At `<state_dir>/<id>-<slug>.md`. If the file existed (e.g., status: idea), overwrite. If not, create.
 6. **Bump status.** `status: refined`.

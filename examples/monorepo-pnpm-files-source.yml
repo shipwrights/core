@@ -162,7 +162,7 @@ lock:
 
 telemetry:
   enabled: true
-  log_path: ".shipwright/telemetry.jsonl"
+  log_path: ".shipwrights/telemetry.jsonl"
   budget_per_epic_tokens: 500000
   on_budget_exceeded: warn
 

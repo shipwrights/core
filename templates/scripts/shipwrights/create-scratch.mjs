@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Create a per-role scratch branch off the current feature branch.
 //
-//   node scripts/shipwright/create-scratch.mjs <role>
+//   node scripts/shipwrights/create-scratch.mjs <role>
 //
-// Reads .shipwright.yml for branch patterns. Stays local-only unless
+// Reads .shipwrights.yml for branch patterns. Stays local-only unless
 // scratch.push_to_remote is true.
 
 import { execSync } from "node:child_process";
@@ -16,7 +16,7 @@ if (!role) {
   process.exit(2);
 }
 
-const config = parseYaml(readFileSync(".shipwright.yml", "utf8"));
+const config = parseYaml(readFileSync(".shipwrights.yml", "utf8"));
 const featureBranch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf8" }).trim();
 if (config.branches.integration === featureBranch) {
   console.error("create-scratch must be run from a feature branch, not the integration branch");

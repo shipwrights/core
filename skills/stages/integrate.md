@@ -10,7 +10,7 @@ The orchestrator merges scratch branches into the feature branch in a determinis
 ## What you (orchestrator) do
 
 1. **Read `integrate.order:`** from the stage config (e.g., `[backend, frontend, qa]` — though qa is typically post-integrate, not part of this stage).
-2. **For each role in order**, run `scripts/shipwright/integrate-scratch.mjs <role>`:
+2. **For each role in order**, run `scripts/shipwrights/integrate-scratch.mjs <role>`:
    - The script rebases `<feature-branch>--<role>` onto the current tip of the feature branch.
    - On clean rebase: fast-forwards the feature branch to the new tip. Deletes the scratch branch (if `scratch.cleanup_on_integrate: true`).
    - On conflict: stops. Calls `bundle-on-failure.mjs` to save the scratch state. Reports the conflict.

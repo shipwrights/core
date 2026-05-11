@@ -1,11 +1,11 @@
 ---
-name: shipwright-init
-description: First-run scaffold for a Shipwright project. Auto-detects language, package manager, verify commands, and project layout. Proposes a config + templates, asks per-file decisions on conflicts, lands as one git commit. Non-destructive by default. Invoke as /shipwright:init [--dry-run | --non-interactive | --force].
+name: shipwrights-init
+description: First-run scaffold for a Shipwright project. Auto-detects language, package manager, verify commands, and project layout. Proposes a config + templates, asks per-file decisions on conflicts, lands as one git commit. Non-destructive by default. Invoke as /shipwrights:init [--dry-run | --non-interactive | --force].
 ---
 
-# /shipwright:init — non-destructive project scaffold
+# /shipwrights:init — non-destructive project scaffold
 
-Scaffold `.shipwright.yml` + workflows + scripts + doc templates into a project. Never overwrites silently. Always lands as one git commit so undo is `git revert HEAD`.
+Scaffold `.shipwrights.yml` + workflows + scripts + doc templates into a project. Never overwrites silently. Always lands as one git commit so undo is `git revert HEAD`.
 
 ## Flags
 
@@ -20,7 +20,7 @@ Scaffold `.shipwright.yml` + workflows + scripts + doc templates into a project.
 - Confirm the working tree is clean. Refuse if dirty (unless `--force`).
 - Confirm the cwd is a git repository (`git rev-parse --is-inside-work-tree`).
 - Read existing `package.json` / `Cargo.toml` / `go.mod` / `pyproject.toml` to detect ecosystem.
-- Look for an existing `.shipwright.yml`. If present, refuse — direct user to `/shipwright:upgrade`.
+- Look for an existing `.shipwrights.yml`. If present, refuse — direct user to `/shipwrights:upgrade`.
 
 ### 2. Auto-discovery
 
@@ -86,7 +86,7 @@ Walk the plugin's `templates/` directory. For each template path, classify:
 - **new** — doesn't exist in the consumer's repo. Will be written.
 - **identical** — exists, byte-equal to the rendered template. Skip silently.
 - **conflict** — exists with different content. Prompt: skip / overwrite / merge / write-as-`.example` / view-diff.
-- **never-overwrite** — list of paths the consumer owns that init refuses to ever write if they exist: `.shipwright.yml`, files under `<state_dir>/`, `CLAUDE.md`, `AGENTS.md`, `README.md`. If they exist, init skips. If they don't, init writes a starter version.
+- **never-overwrite** — list of paths the consumer owns that init refuses to ever write if they exist: `.shipwrights.yml`, files under `<state_dir>/`, `CLAUDE.md`, `AGENTS.md`, `README.md`. If they exist, init skips. If they don't, init writes a starter version.
 
 ### 5. Show the plan
 
@@ -110,7 +110,7 @@ In `--dry-run` mode: print the plan and exit without writing. In `--force` mode:
 
 In a single commit:
 
-1. Write `.shipwright.yml` with the consumer-confirmed values.
+1. Write `.shipwrights.yml` with the consumer-confirmed values.
 2. Write resolved templates from `templates/` to consumer paths, with `{{token}}` substitution against the config.
 3. Write any `.example` files chosen during conflict resolution.
 4. Stage all changes.
@@ -123,17 +123,17 @@ Print:
 
 ```
 ✓ Shipwright installed at v<version>
-✓ Config: .shipwright.yml
+✓ Config: .shipwrights.yml
 ✓ Workflows: .github/workflows/{auto-merge-low-tier.yml, post-merge-doc-update.yml}
-✓ Scripts: scripts/shipwright/
+✓ Scripts: scripts/shipwrights/
 
 Next steps:
-  1. Run /shipwright:doctor to validate the config + agent availability.
+  1. Run /shipwrights:doctor to validate the config + agent availability.
   2. Create GitHub labels (one-time):
      gh label create tier:trivial --color cccccc
      gh label create tier:minimal --color e8e8e8
      gh label create do-not-auto-merge --color d93f0b
-  3. Drop an epic stub at <state_dir>/E-XX-XX-stub.md with status: idea, then run /shipwright:epic E-XX-XX.
+  3. Drop an epic stub at <state_dir>/E-XX-XX-stub.md with status: idea, then run /shipwrights:epic E-XX-XX.
 
 Reference: README.md, examples/.
 ```
@@ -141,7 +141,7 @@ Reference: README.md, examples/.
 ## Hard rules
 
 - **One git commit.** No matter how many files were written, they all land in one commit. Undo is `git revert HEAD`.
-- **Never overwrite consumer-owned files.** `.shipwright.yml`, `<state_dir>/*`, `CLAUDE.md`, `AGENTS.md`, `README.md`. If they exist, init proposes alongside (`.example`) or skips.
+- **Never overwrite consumer-owned files.** `.shipwrights.yml`, `<state_dir>/*`, `CLAUDE.md`, `AGENTS.md`, `README.md`. If they exist, init proposes alongside (`.example`) or skips.
 - **Never modify branch protection.** Print recommendations, don't apply them.
 - **Refuse on dirty working tree** unless `--force`.
 
@@ -149,6 +149,6 @@ Reference: README.md, examples/.
 
 - **Working tree dirty** — refuse, instruct user to commit or stash.
 - **Not in git** — refuse, instruct user to `git init`.
-- **`.shipwright.yml` already exists** — refuse, point to `/shipwright:upgrade`.
+- **`.shipwrights.yml` already exists** — refuse, point to `/shipwrights:upgrade`.
 - **Auto-discovery fails** (no recognizable manifest) — fall back to fully-manual prompts.
 - **Template rendering fails on an unrecognized token** — abort, leave nothing written, print the offending token.

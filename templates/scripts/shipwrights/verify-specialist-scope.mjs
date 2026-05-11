@@ -2,7 +2,7 @@
 // Verify that a specialist's commits on their scratch branch only touched
 // paths within their declared scope and did not touch any frozen path.
 //
-//   node scripts/shipwright/verify-specialist-scope.mjs <role>
+//   node scripts/shipwrights/verify-specialist-scope.mjs <role>
 //
 // Exits 0 if clean, 1 if violations. Designed to be run by integrate-scratch
 // before the rebase is allowed.
@@ -18,7 +18,7 @@ if (!role) {
   process.exit(2);
 }
 
-const config = parseYaml(readFileSync(".shipwright.yml", "utf8"));
+const config = parseYaml(readFileSync(".shipwrights.yml", "utf8"));
 const featureBranch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf8" }).trim();
 const pattern = config.branches.patterns.scratch ?? "<feature-branch>--<role>";
 
@@ -38,7 +38,7 @@ if (featureBranch.endsWith(`--${role}`)) {
 
 const roleConfig = config.roles.find((r) => r.name === role);
 if (!roleConfig) {
-  console.error(`role "${role}" not found in .shipwright.yml`);
+  console.error(`role "${role}" not found in .shipwrights.yml`);
   process.exit(2);
 }
 const scope = roleConfig.capabilities?.scope ?? [];

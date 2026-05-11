@@ -39,7 +39,7 @@ jobs:
           PR_TITLE:     ${{ github.event.pull_request.title }}
           PR_URL:       ${{ github.event.pull_request.html_url }}
           EPICS_DIR:    "{{backlog.state_dir}}"
-        run: node scripts/shipwright/update-epic-after-merge.mjs
+        run: node scripts/shipwrights/update-epic-after-merge.mjs
 
       - name: Open follow-up PR with the epic update
         if: steps.update.outputs.changed_file != ''

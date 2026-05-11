@@ -21,7 +21,7 @@ import { dirname } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PLUGIN_ROOT = join(here, "..");
-const SCRIPTS = join(PLUGIN_ROOT, "templates", "scripts", "shipwright");
+const SCRIPTS = join(PLUGIN_ROOT, "templates", "scripts", "shipwrights");
 
 const MIN_CONFIG = `version: 1
 branches:
@@ -69,7 +69,7 @@ function makeRepo() {
   execSync("git init -q -b dev", { cwd: dir });
   execSync("git config user.name t", { cwd: dir });
   execSync("git config user.email t@t.com", { cwd: dir });
-  writeFileSync(join(dir, ".shipwright.yml"), MIN_CONFIG);
+  writeFileSync(join(dir, ".shipwrights.yml"), MIN_CONFIG);
   mkdirSync(join(dir, "apps/api/src"), { recursive: true });
   mkdirSync(join(dir, "apps/web/src"), { recursive: true });
   mkdirSync(join(dir, "packages/contracts/src"), { recursive: true });
@@ -246,7 +246,7 @@ test("bundle-on-failure produces a valid git bundle", () => {
   execSync("git checkout -q -b feature/e-bundle", { cwd: dir });
   writeFileSync(join(dir, "apps/api/src/extra.ts"), "export const z = 3;\n");
   execSync('git add -A && git commit -q -m "feat: add"', { cwd: dir });
-  const bundlePath = join(dir, ".shipwright/bundles/test.bundle");
+  const bundlePath = join(dir, ".shipwrights/bundles/test.bundle");
   const r = spawnSync(
     "node",
     [join(SCRIPTS, "bundle-on-failure.mjs"), "feature/e-bundle", bundlePath],

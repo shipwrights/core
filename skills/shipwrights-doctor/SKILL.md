@@ -1,9 +1,9 @@
 ---
-name: shipwright-doctor
-description: Diagnose .shipwright.yml — schema validity, agent availability, command discoverability, source adapter connectivity, guard registration, lock service reachability, telemetry log writability. Read-only. Invoked as /shipwright:doctor.
+name: shipwrights-doctor
+description: Diagnose .shipwrights.yml — schema validity, agent availability, command discoverability, source adapter connectivity, guard registration, lock service reachability, telemetry log writability. Read-only. Invoked as /shipwrights:doctor.
 ---
 
-# /shipwright:doctor — diagnose the install
+# /shipwrights:doctor — diagnose the install
 
 Validates everything Shipwright depends on without modifying anything. Read-only.
 
@@ -11,9 +11,9 @@ Validates everything Shipwright depends on without modifying anything. Read-only
 
 ### 1. Config validity
 
-- `.shipwright.yml` exists.
+- `.shipwrights.yml` exists.
 - Parses as YAML.
-- Validates against `schemas/shipwright-config.schema.json`.
+- Validates against `schemas/shipwrights-config.schema.json`.
 - Required fields present.
 - `version` matches a known schema version.
 
@@ -91,7 +91,7 @@ Guards:
   branch-name              ✓ bundled
   commit-format            ✓ bundled
 Lock service (markdown):   ✓ docs/process/in-flight.md exists, 1 active entry
-Telemetry log:             ✓ .shipwright/telemetry.jsonl writable
+Telemetry log:             ✓ .shipwrights/telemetry.jsonl writable
 GitHub labels:             ✗ tier:minimal missing — run: gh label create tier:minimal --color e8e8e8
 
 Summary: 1 fail, 1 warn, 13 pass
@@ -103,4 +103,4 @@ If there's any fail, exit non-zero. The user fixes, re-runs.
 
 - **Config doesn't parse** — print the YAML error with line number, exit.
 - **A required directory doesn't exist** (e.g., `state_dir`) — propose creating it.
-- **Plugin version doesn't match expected migration head** — instruct to `/shipwright:upgrade`.
+- **Plugin version doesn't match expected migration head** — instruct to `/shipwrights:upgrade`.

@@ -72,7 +72,7 @@ merge:
 `;
   writeFileSync(join(dir, "base.yml"), baseYaml);
   writeFileSync(
-    join(dir, ".shipwright.yml"),
+    join(dir, ".shipwrights.yml"),
     `extends: ./base.yml\nbranches:\n  integration: develop\n`,
   );
   const cfg = loadConfig(dir);

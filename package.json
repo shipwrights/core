@@ -1,15 +1,16 @@
 {
   "name": "@shipwrights/core",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "An orchestration framework for shipping epics with AI specialists. Coordinates designer/architect/QA/reviewer roles across scratch branches, integrates results, and ships PRs — without locking you into one workflow.",
   "type": "module",
   "main": "./lib/index.mjs",
   "bin": {
-    "shipwright": "./bin/shipwright.mjs"
+    "shipwrights": "./bin/shipwrights.mjs",
+    "shipwright": "./bin/shipwrights.mjs"
   },
   "exports": {
     ".": "./lib/index.mjs",
-    "./schema": "./schemas/shipwright-config.schema.json",
+    "./schema": "./schemas/shipwrights-config.schema.json",
     "./sources/files": "./sources/files/index.mjs",
     "./sources/github-issues": "./sources/github-issues/index.mjs",
     "./guards/file-length": "./guards/file-length.mjs",

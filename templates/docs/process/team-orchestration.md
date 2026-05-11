@@ -14,7 +14,7 @@ How a Claude Code session ships epics by spawning specialist sub-agents on scrat
 | Browser reviewer | ux-ui-browser-reviewer | Exercises the running app via Playwright at named breakpoints. Read-only. Optional stage. |
 | Integrating contributor | Claude (this session) | Orchestrator. Slices, dispatches specialists, integrates scratch branches, runs guards, opens the PR. |
 
-The agents above are the bundled defaults. Each is configurable in `.shipwright.yml` under `roles[].agent` — bundled, user-global, custom path, or npm package.
+The agents above are the bundled defaults. Each is configurable in `.shipwrights.yml` under `roles[].agent` — bundled, user-global, custom path, or npm package.
 
 The orchestrator does **not** write code on the integration feature branch during the build stage — specialists do that on their scratch branches. The orchestrator integrates.
 
@@ -26,7 +26,7 @@ The orchestrator does **not** write code on the integration feature branch durin
 └─────────┘   └────────┘   └──────────────────┘   └───────────┘   └──────┘   └────────┘   └──────┘
 ```
 
-Stages, owners, parallelism, and tier-routing live in `.shipwright.yml` under `pipeline:` and `tiers:`.
+Stages, owners, parallelism, and tier-routing live in `.shipwrights.yml` under `pipeline:` and `tiers:`.
 
 ## Decision rights
 
@@ -73,8 +73,8 @@ These remain in force from the project's CLAUDE.md / AGENTS.md:
 ## How to invoke
 
 ```
-/shipwright:epic <id>          # drive a specific epic
-/shipwright:epic               # pick the next ready epic
-/shipwright:status             # see what's in flight
-/shipwright:doctor             # validate config + agents
+/shipwrights:epic <id>          # drive a specific epic
+/shipwrights:epic               # pick the next ready epic
+/shipwrights:status             # see what's in flight
+/shipwrights:doctor             # validate config + agents
 ```
