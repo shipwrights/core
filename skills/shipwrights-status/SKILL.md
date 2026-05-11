@@ -1,15 +1,15 @@
 ---
-name: shipwright-status
-description: Read the in-flight register and report what's currently being driven through the pipeline. Includes stale-entry detection (>48h with no commit). Invoked as /shipwright:status.
+name: shipwrights-status
+description: Read the in-flight register and report what's currently being driven through the pipeline. Includes stale-entry detection (>48h with no commit). Invoked as /shipwrights:status.
 ---
 
-# /shipwright:status — what's in flight
+# /shipwrights:status — what's in flight
 
 Read the configured lock service and report on every active orchestration.
 
 ## What you do
 
-1. **Load `.shipwright.yml`** to determine the lock backend.
+1. **Load `.shipwrights.yml`** to determine the lock backend.
 2. **Query the lock service** via `lib/lock-service.mjs` (the engine handles the kind dispatch; markdown / github-issues / custom).
 3. **Render the table:**
 
@@ -33,8 +33,8 @@ Read the configured lock service and report on every active orchestration.
    Stale threshold: 48h
 
    Operations:
-     /shipwright:epic <id>          — start or resume an epic
-     /shipwright:doctor             — validate config + agent availability
+     /shipwrights:epic <id>          — start or resume an epic
+     /shipwrights:doctor             — validate config + agent availability
    ```
 
 ## When the register has no entries
@@ -45,8 +45,8 @@ Print:
 Nothing in flight.
 
 To start an epic:
-  /shipwright:epic <id>      — by id from your backlog
-  /shipwright:epic           — picks the next ready epic from <backlog source>
+  /shipwrights:epic <id>      — by id from your backlog
+  /shipwrights:epic           — picks the next ready epic from <backlog source>
 ```
 
 ## Failure modes

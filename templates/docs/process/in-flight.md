@@ -8,13 +8,13 @@ Multiple orchestrator sessions can run in parallel — one human running two Cla
 
 ## How to use
 
-**On Stage 0** (pick the epic): `/shipwright:status` reads this. If the epic you're about to pick is already in flight, escalate — don't start a parallel branch.
+**On Stage 0** (pick the epic): `/shipwrights:status` reads this. If the epic you're about to pick is already in flight, escalate — don't start a parallel branch.
 
 **On Stage 4 entry** (build): a row is added when the orchestrator cuts the feature branch.
 
 **On Stage 7 exit** (ship): the row is updated to mark the PR as awaiting merge. It's removed when the PR actually merges (handled by `post-merge-doc-update.yml`).
 
-**Stale entries** (>48h with no commit on the branch and no orchestrator activity): `/shipwright:status` flags them. The user decides whether to resume, archive, or delete.
+**Stale entries** (>48h with no commit on the branch and no orchestrator activity): `/shipwrights:status` flags them. The user decides whether to resume, archive, or delete.
 
 ## Format
 

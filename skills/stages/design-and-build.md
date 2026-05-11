@@ -10,7 +10,7 @@ Specialists design and implement their slice in parallel on scratch branches. Ea
 ## What you (orchestrator) do
 
 1. **Branch the integration feature branch off `branches.integration`.** Pattern from `branches.patterns.feature` (or `fix` / `chore` per the epic type).
-2. **Run `scripts/shipwright/create-scratch.mjs <role>`** for each role this stage owns. That script:
+2. **Run `scripts/shipwrights/create-scratch.mjs <role>`** for each role this stage owns. That script:
    - Creates `<feature-branch>--<role>` off the feature branch.
    - Stays local-only by default (`scratch.push_to_remote: false`).
    - Records the role + branch in the in-flight register.
@@ -23,7 +23,7 @@ Specialists design and implement their slice in parallel on scratch branches. Ea
    - Their scratch branch name.
    - Instructions: write code on this branch, commit per logical task, run verify, signal done.
 4. **Wait for all specialists to signal done.** Don't advance until every dispatched specialist returns.
-5. **For each specialist, run scope verification.** `scripts/shipwright/verify-specialist-scope.mjs <role>` walks the diff vs feature branch, asserts every changed path is in the role's scope and not in `freeze_paths`. Failure → escalate that specialist's branch back to them with the violation list.
+5. **For each specialist, run scope verification.** `scripts/shipwrights/verify-specialist-scope.mjs <role>` walks the diff vs feature branch, asserts every changed path is in the role's scope and not in `freeze_paths`. Failure → escalate that specialist's branch back to them with the violation list.
 
 ## What specialists do (handled in their own agent prompts)
 

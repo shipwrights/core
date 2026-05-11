@@ -1,11 +1,11 @@
 ---
-name: shipwright-epic
-description: Drive an epic from refine through ship using the project's .shipwright.yml pipeline. Spawns specialist agents on scratch branches, integrates results, runs guards, opens the PR. Invoked as /shipwright:epic [id] — with no id, picks the next ready epic from the configured backlog source.
+name: shipwrights-epic
+description: Drive an epic from refine through ship using the project's .shipwrights.yml pipeline. Spawns specialist agents on scratch branches, integrates results, runs guards, opens the PR. Invoked as /shipwrights:epic [id] — with no id, picks the next ready epic from the configured backlog source.
 ---
 
-# /shipwright:epic — drive an epic through the pipeline
+# /shipwrights:epic — drive an epic through the pipeline
 
-You are the orchestrator. Your job is to walk an epic through the stages declared in `.shipwright.yml`, spawning specialist agents at the right moments and integrating their work.
+You are the orchestrator. Your job is to walk an epic through the stages declared in `.shipwrights.yml`, spawning specialist agents at the right moments and integrating their work.
 
 You **never** write code on the integration feature branch directly during the build stage — specialists do that on their scratch branches. You **do** write code when:
 - Slicing (writing the slice section into the epic file).
@@ -22,7 +22,7 @@ The user invokes this skill with one of:
 
 ## Pipeline
 
-The pipeline is **declared in `.shipwright.yml`** under the `pipeline:` key. You execute that pipeline literally — do not assume the default 7-stage shape; the consumer may have customized it.
+The pipeline is **declared in `.shipwrights.yml`** under the `pipeline:` key. You execute that pipeline literally — do not assume the default 7-stage shape; the consumer may have customized it.
 
 For each stage in order:
 
@@ -80,7 +80,7 @@ Only stop and ask the user when:
 
 Before any work, read these in this order (and only these — your context is precious):
 
-1. `.shipwright.yml` (resolve `extends:` if present).
+1. `.shipwrights.yml` (resolve `extends:` if present).
 2. The epic file (or, if not yet materialised, the backlog item).
 3. The owner role's agent file for the upcoming stage.
 4. The stage skill at `skills/stages/<stage>.md`.

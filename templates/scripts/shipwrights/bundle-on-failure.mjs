@@ -2,7 +2,7 @@
 // Save a git bundle of a scratch branch's state when integration fails, so
 // the work isn't lost and forensics is possible later.
 //
-//   node scripts/shipwright/bundle-on-failure.mjs <branch> <output-path>
+//   node scripts/shipwrights/bundle-on-failure.mjs <branch> <output-path>
 
 import { execSync } from "node:child_process";
 import { mkdirSync } from "node:fs";

@@ -1,14 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/shipwrights/core/schemas/shipwright-config.schema.json",
-  "title": "Shipwright config",
-  "description": "Schema for .shipwright.yml — the per-project orchestration config.",
+  "$id": "https://github.com/shipwrights/core/schemas/shipwrights-config.schema.json",
+  "title": "Shipwrights config",
+  "description": "Schema for .shipwrights.yml — the per-project orchestration config.",
   "type": "object",
   "required": ["version", "branches", "roles", "pipeline", "backlog", "verify", "merge"],
   "additionalProperties": false,
   "properties": {
     "version": {
-      "description": "Config schema version. Used by /shipwright:upgrade migrations.",
+      "description": "Config schema version. Used by /shipwrights:upgrade migrations.",
       "type": "integer",
       "minimum": 1
     },
@@ -137,7 +137,7 @@
       "additionalProperties": false,
       "properties": {
         "enabled":     { "type": "boolean", "default": true },
-        "log_path":    { "type": "string",  "default": ".shipwright/telemetry.jsonl" },
+        "log_path":    { "type": "string",  "default": ".shipwrights/telemetry.jsonl" },
         "budget_per_epic_tokens": { "type": "integer", "minimum": 0 },
         "on_budget_exceeded": { "enum": ["warn", "escalate", "abort"], "default": "warn" }
       }

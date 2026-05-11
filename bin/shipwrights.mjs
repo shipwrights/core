@@ -2,10 +2,10 @@
 // Shipwright CLI entry point. Backs the slash commands with executable
 // behaviour for environments outside Claude Code (CI, local scripts).
 //
-//   shipwright init [--dry-run | --non-interactive | --force]
-//   shipwright doctor
-//   shipwright status
-//   shipwright upgrade [--finalize]
+//   shipwrights init [--dry-run | --non-interactive | --force]
+//   shipwrights doctor
+//   shipwrights status
+//   shipwrights upgrade [--finalize]
 
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -57,10 +57,10 @@ function printHelp() {
 Shipwright — orchestration framework for shipping epics with AI specialists.
 
 Usage:
-  shipwright init     [--dry-run | --non-interactive | --force]
-  shipwright doctor
-  shipwright status
-  shipwright upgrade  [--finalize]
+  shipwrights init     [--dry-run | --non-interactive | --force]
+  shipwrights doctor
+  shipwrights status
+  shipwrights upgrade  [--finalize]
 
 For full docs: https://github.com/shipwrights/core
 `);

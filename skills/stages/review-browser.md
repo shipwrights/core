@@ -6,7 +6,7 @@ Browser-based UX/UI review via Playwright MCP. Verifies rendered behaviour at th
 
 - The integrated diff doesn't touch UI surface (no changes under `apps/web/**` or equivalent UI paths declared in config).
 - Tier is `trivial` or `minimal`.
-- The browser-reviewer role isn't enabled in `.shipwright.yml`.
+- The browser-reviewer role isn't enabled in `.shipwrights.yml`.
 
 ## When to run
 

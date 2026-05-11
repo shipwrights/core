@@ -1,7 +1,7 @@
 // Guard adapter contract.
 //
 // Bundled guards live under `guards/`. External guards are npm packages or
-// shell commands declared in `.shipwright.yml` under `guards[].runs`.
+// shell commands declared in `.shipwrights.yml` under `guards[].runs`.
 
 export interface GuardContext {
   projectRoot: string;

@@ -21,7 +21,7 @@ If you find yourself wanting to make a bigger change, that's a signal to escalat
 
 ## What you check
 
-1. **Hard rules from `.shipwright.yml`.** Project-defined invariants (public-id discipline, append-only ledgers, route-access enforcement, etc.). Walk the diff against each rule.
+1. **Hard rules from `.shipwrights.yml`.** Project-defined invariants (public-id discipline, append-only ledgers, route-access enforcement, etc.). Walk the diff against each rule.
 2. **Repo conventions.** File-length limits. Naming patterns. Conventional-commit scope. Branch naming.
 3. **Acceptance criteria coverage.** For each criterion in the refined epic: is it implemented? Is there a test? Walk it explicitly — don't just trust prose summaries.
 4. **Error contract.** Every state-changing path has named failure modes, idempotency stated where applicable, structured logging.

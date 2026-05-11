@@ -9,7 +9,7 @@ QA writes tests on a `--qa` scratch branch and produces a manual verification pl
 
 ## What you (orchestrator) do
 
-1. **Create the QA scratch branch.** `scripts/shipwright/create-scratch.mjs qa`.
+1. **Create the QA scratch branch.** `scripts/shipwrights/create-scratch.mjs qa`.
 2. **Dispatch the QA agent.** Hand it:
    - The integrated diff (`git diff <feature-branch> <integration>`).
    - The refined epic (especially `## Acceptance` and `## Edge cases`).

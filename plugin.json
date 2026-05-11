@@ -1,17 +1,17 @@
 {
   "$schema": "https://docs.claude.com/claude-code/plugin-manifest.schema.json",
-  "name": "shipwright",
-  "version": "0.1.4",
+  "name": "shipwrights",
+  "version": "0.2.0",
   "description": "Ship epics with AI specialists. Coordinates designer/architect/QA/reviewer agents across scratch branches and integrates the result into a single PR.",
-  "author": "Shipwright contributors",
+  "author": "Shipwrights contributors",
   "license": "MIT",
   "homepage": "https://github.com/shipwrights/core",
   "skills": [
-    "skills/shipwright-epic",
-    "skills/shipwright-init",
-    "skills/shipwright-status",
-    "skills/shipwright-upgrade",
-    "skills/shipwright-doctor"
+    "skills/shipwrights-epic",
+    "skills/shipwrights-init",
+    "skills/shipwrights-status",
+    "skills/shipwrights-upgrade",
+    "skills/shipwrights-doctor"
   ],
   "agents": [
     "agents/product-owner-strategist.md",
@@ -22,10 +22,10 @@
     "agents/ux-ui-browser-reviewer.md"
   ],
   "commands": {
-    "shipwright:epic": "skills/shipwright-epic/SKILL.md",
-    "shipwright:init": "skills/shipwright-init/SKILL.md",
-    "shipwright:status": "skills/shipwright-status/SKILL.md",
-    "shipwright:upgrade": "skills/shipwright-upgrade/SKILL.md",
-    "shipwright:doctor": "skills/shipwright-doctor/SKILL.md"
+    "shipwrights:epic": "skills/shipwrights-epic/SKILL.md",
+    "shipwrights:init": "skills/shipwrights-init/SKILL.md",
+    "shipwrights:status": "skills/shipwrights-status/SKILL.md",
+    "shipwrights:upgrade": "skills/shipwrights-upgrade/SKILL.md",
+    "shipwrights:doctor": "skills/shipwrights-doctor/SKILL.md"
   }
 }

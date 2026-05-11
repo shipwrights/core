@@ -4,7 +4,7 @@
 // the scratch. On conflict, bundles the scratch state for forensics and
 // reports the conflict.
 //
-//   node scripts/shipwright/integrate-scratch.mjs <role>
+//   node scripts/shipwrights/integrate-scratch.mjs <role>
 
 import { execSync, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -16,7 +16,7 @@ if (!role) {
   process.exit(2);
 }
 
-const config = parseYaml(readFileSync(".shipwright.yml", "utf8"));
+const config = parseYaml(readFileSync(".shipwrights.yml", "utf8"));
 const currentBranch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf8" }).trim();
 
 // Detect whether the orchestrator is on the feature branch (canonical) or
@@ -47,9 +47,9 @@ const rebase = git(["rebase", featureTip]);
 if (rebase.status !== 0) {
   console.error("rebase failed");
   if (config.scratch?.bundle_on_failure) {
-    const bundlePath = `.shipwright/bundles/${scratchBranch}-${Date.now()}.bundle`;
+    const bundlePath = `.shipwrights/bundles/${scratchBranch}-${Date.now()}.bundle`;
     spawnSync("node", [
-      "scripts/shipwright/bundle-on-failure.mjs",
+      "scripts/shipwrights/bundle-on-failure.mjs",
       scratchBranch,
       bundlePath,
     ], { stdio: "inherit" });
