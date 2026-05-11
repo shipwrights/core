@@ -31,14 +31,9 @@ npx shipwrights doctor
 gh label create tier:trivial --color cccccc
 gh label create tier:minimal --color e8e8e8
 gh label create do-not-auto-merge --color d93f0b
-
-# 6. Make Claude Code see the bundled skills + agents (until plugin install lands)
-mkdir -p .claude/skills .claude/agents
-ln -s "$(pwd)/node_modules/@shipwrights/core/skills" .claude/skills/shipwrights
-ln -s "$(pwd)/node_modules/@shipwrights/core/agents" .claude/agents/shipwrights
 ```
 
-After step 6, opening Claude Code in this project gives you five new slash commands:
+`init` already copied the bundled skills + agents into `.claude/skills/shipwrights/` and `.claude/agents/shipwrights/` for you. Restart your Claude Code session in this project and you'll see five new slash commands:
 
 ```
 /shipwrights:epic <id>     # drive an epic from refine → ship
@@ -48,7 +43,7 @@ After step 6, opening Claude Code in this project gives you five new slash comma
 /shipwrights:doctor        # validate config + agent availability
 ```
 
-> **Status:** v0.2.x. The CLI side (`init`, `doctor`, `status`, `upgrade`) is stable. The Claude Code plugin side currently needs the manual symlink in step 6 — auto-link is planned. The `shipwright` (singular) CLI alias keeps working through one minor version for v0.1 consumers; new docs and slash commands use the plural form.
+> **Status:** v0.2.x. The CLI (`init`, `doctor`, `status`, `upgrade`) is stable. `init` and `upgrade` automatically wire `.claude/skills/shipwrights/` and `.claude/agents/shipwrights/` so Claude Code picks up the plugin without manual symlinks. The `shipwright` (singular) CLI alias keeps working through one minor version for v0.1 consumers.
 
 ## How it works
 
@@ -208,7 +203,7 @@ node --test "tests/**/*.test.mjs"
 | **Stable** | CLI (`init`, `doctor`, `status`, `upgrade`), config schema, source-adapter interface, guard interface, scratch-branch scripts |
 | **Stable but evolving** | Bundled agent prompts (may sharpen between minor versions) |
 | **Pre-1.0** | Pipeline engine internals, lock-service backends, telemetry shape |
-| **Planned** | Auto-symlink to `.claude/skills` from `init`, browser-reviewer Stage 6b end-to-end (needs dev-server lifecycle wiring), more source adapters |
+| **Planned** | Browser-reviewer Stage 6b end-to-end (needs dev-server lifecycle wiring), more source adapters |
 
 API may evolve before v1.0. Pin exact versions until v1.
 

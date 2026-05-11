@@ -57,7 +57,7 @@ test("init scaffolds a fresh project in non-interactive mode", () => {
   const dir = makeMonorepo();
   const r = sw(["init", "--non-interactive"], dir);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(r.stdout, /Shipwright installed/);
+  assert.match(r.stdout, /Shipwrights installed/);
   // Spot check the resulting tree
   assert.equal(existsSync(join(dir, ".shipwrights.yml")), true);
   assert.equal(existsSync(join(dir, ".github/workflows/auto-merge-low-tier.yml")), true);
@@ -66,6 +66,35 @@ test("init scaffolds a fresh project in non-interactive mode", () => {
   // Single git commit was made
   const log = execSync('git log --oneline', { cwd: dir, encoding: "utf8" });
   assert.match(log, /chore: install @shipwrights\/core/);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("init wires .claude/skills + .claude/agents from the plugin (v0.2.1)", () => {
+  const dir = makeMonorepo();
+  const r = sw(["init", "--non-interactive"], dir);
+  assert.equal(r.status, 0, r.stderr);
+  // The two managed subtrees exist
+  assert.equal(existsSync(join(dir, ".claude", "skills", "shipwrights")), true);
+  assert.equal(existsSync(join(dir, ".claude", "agents", "shipwrights")), true);
+  // Skills folder has the orchestrator entry point
+  assert.equal(
+    existsSync(join(dir, ".claude", "skills", "shipwrights", "shipwrights-epic", "SKILL.md")),
+    true,
+  );
+  // Agents folder has the bundled PO
+  assert.equal(
+    existsSync(join(dir, ".claude", "agents", "shipwrights", "product-owner-strategist.md")),
+    true,
+  );
+  // Each managed root has a MANAGED.md
+  assert.equal(
+    existsSync(join(dir, ".claude", "skills", "shipwrights", "MANAGED.md")),
+    true,
+  );
+  assert.equal(
+    existsSync(join(dir, ".claude", "agents", "shipwrights", "MANAGED.md")),
+    true,
+  );
   rmSync(dir, { recursive: true, force: true });
 });
 
