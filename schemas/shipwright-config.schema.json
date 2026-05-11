@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/dacostaaboagye/shipwright/schemas/shipwright-config.schema.json",
+  "$id": "https://github.com/shipwrights/core/schemas/shipwright-config.schema.json",
   "title": "Shipwright config",
   "description": "Schema for .shipwright.yml — the per-project orchestration config.",
   "type": "object",

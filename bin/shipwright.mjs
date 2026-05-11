@@ -62,7 +62,7 @@ Usage:
   shipwright status
   shipwright upgrade  [--finalize]
 
-For full docs: https://github.com/dacostaaboagye/shipwright
+For full docs: https://github.com/shipwrights/core
 `);
 }
 
