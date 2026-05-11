@@ -13,7 +13,7 @@ import {
   existsSync,
   readFileSync,
 } from "node:fs";
-import { tmpdir, homedir } from "node:os";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { spawnSync, execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -89,13 +89,17 @@ test("init wires .claude/skills + .claude/agents flat (v0.2.2)", () => {
     existsSync(join(dir, ".claude", "skills", "stages", "refine.md")),
     true,
   );
-  // Bundled agents land flat too, unless a user-global version of the
-  // same name exists (which would take precedence and we skip).
+  // Bundled agents always land flat in .claude/agents/. v0.2.2 skipped
+  // copying when a user-global agent of the same name existed, but that
+  // produced a confusingly-empty agents folder; v0.2.3 always copies.
+  // Users who want their user-global customisation to apply set
+  // `agent: { user: "<name>" }` on the relevant role in .shipwrights.yml.
   assert.equal(
-    existsSync(join(dir, ".claude", "agents", "product-owner-strategist.md")) ||
-      // Allow either: the file is present, OR it was skipped because the
-      // test machine has a user-global agent of that name.
-      existsSync(join(homedir(), ".claude", "agents", "product-owner-strategist.md")),
+    existsSync(join(dir, ".claude", "agents", "product-owner-strategist.md")),
+    true,
+  );
+  assert.equal(
+    existsSync(join(dir, ".claude", "agents", "node-backend-systems-architect.md")),
     true,
   );
   // A SHIPWRIGHTS-MANAGED.md marker sits at the skills root.

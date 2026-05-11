@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.claude.com/claude-code/plugin-manifest.schema.json",
   "name": "shipwrights",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Ship epics with AI specialists. Coordinates designer/architect/QA/reviewer agents across scratch branches and integrates the result into a single PR.",
   "author": "Shipwrights contributors",
   "license": "MIT",
