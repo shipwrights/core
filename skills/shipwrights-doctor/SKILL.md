@@ -1,9 +1,9 @@
 ---
 name: shipwrights-doctor
-description: Diagnose .shipwrights.yml — schema validity, agent availability, command discoverability, source adapter connectivity, guard registration, lock service reachability, telemetry log writability. Read-only. Invoked as /shipwrights:doctor.
+description: Diagnose .shipwrights.yml — schema validity, agent availability, command discoverability, source adapter connectivity, guard registration, lock service reachability, telemetry log writability. Read-only. Invoked as /shipwrights-doctor.
 ---
 
-# /shipwrights:doctor — diagnose the install
+# /shipwrights-doctor — diagnose the install
 
 Validates everything Shipwright depends on without modifying anything. Read-only.
 
@@ -103,4 +103,4 @@ If there's any fail, exit non-zero. The user fixes, re-runs.
 
 - **Config doesn't parse** — print the YAML error with line number, exit.
 - **A required directory doesn't exist** (e.g., `state_dir`) — propose creating it.
-- **Plugin version doesn't match expected migration head** — instruct to `/shipwrights:upgrade`.
+- **Plugin version doesn't match expected migration head** — instruct to `/shipwrights-upgrade`.

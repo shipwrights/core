@@ -1,9 +1,9 @@
 ---
 name: shipwrights-epic
-description: Drive an epic from refine through ship using the project's .shipwrights.yml pipeline. Spawns specialist agents on scratch branches, integrates results, runs guards, opens the PR. Invoked as /shipwrights:epic [id] — with no id, picks the next ready epic from the configured backlog source.
+description: Drive an epic from refine through ship using the project's .shipwrights.yml pipeline. Spawns specialist agents on scratch branches, integrates results, runs guards, opens the PR. Invoked as /shipwrights-epic [id] — with no id, picks the next ready epic from the configured backlog source.
 ---
 
-# /shipwrights:epic — drive an epic through the pipeline
+# /shipwrights-epic — drive an epic through the pipeline
 
 You are the orchestrator. Your job is to walk an epic through the stages declared in `.shipwrights.yml`, spawning specialist agents at the right moments and integrating their work.
 

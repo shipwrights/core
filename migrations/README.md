@@ -1,6 +1,6 @@
 # Migrations
 
-Each file here transforms a `.shipwrights.yml` from one schema version to the next. They run automatically on `/shipwrights:upgrade`.
+Each file here transforms a `.shipwrights.yml` from one schema version to the next. They run automatically on `/shipwrights-upgrade`.
 
 ## Naming
 
@@ -27,4 +27,4 @@ export function up(config) {
 
 ## Why
 
-Without migrations, every breaking schema change taxes every consumer. With them, `/shipwrights:upgrade` is just `npm update && /shipwrights:upgrade`. The plugin can evolve.
+Without migrations, every breaking schema change taxes every consumer. With them, `/shipwrights-upgrade` is just `npm update && /shipwrights-upgrade`. The plugin can evolve.

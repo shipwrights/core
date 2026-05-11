@@ -1,9 +1,9 @@
 ---
 name: shipwrights-upgrade
-description: Bump Shipwright templates and config schema in a project. Runs config migrations in order (like Drizzle/Prisma). 3-way merges template changes against the consumer's edits. Lands as one git commit. Invoked as /shipwrights:upgrade.
+description: Bump Shipwright templates and config schema in a project. Runs config migrations in order (like Drizzle/Prisma). 3-way merges template changes against the consumer's edits. Lands as one git commit. Invoked as /shipwrights-upgrade.
 ---
 
-# /shipwrights:upgrade — bump templates + run migrations
+# /shipwrights-upgrade — bump templates + run migrations
 
 When the plugin updates and the consumer wants the new templates, schema fixes, or new defaults — without losing their edits.
 
@@ -12,7 +12,7 @@ When the plugin updates and the consumer wants the new templates, schema fixes, 
 ### 1. Pre-checks
 
 - Working tree clean. Refuse if dirty.
-- `.shipwrights.yml` exists. Refuse if not (direct to `/shipwrights:init`).
+- `.shipwrights.yml` exists. Refuse if not (direct to `/shipwrights-init`).
 - Read the current config's `version` field.
 - Read the plugin's `lib/migrations/` directory — list of migrations from version N → N+1.
 
@@ -67,7 +67,7 @@ Proceed? [y/N]
 2. Write resolved + merged templates.
 3. Update `.shipwrights/installed.json` with the new version.
 4. Stage all changes.
-5. If any conflicts: print the conflict list, do NOT commit. Ask user to resolve, then `/shipwrights:upgrade --finalize`.
+5. If any conflicts: print the conflict list, do NOT commit. Ask user to resolve, then `/shipwrights-upgrade --finalize`.
 6. Otherwise: commit `chore: upgrade @shipwrights/core to v<version>`.
 
 ### 6. Post-upgrade
@@ -80,7 +80,7 @@ Print:
 ✓ Templates updated; <K> 3-way merges applied cleanly
 ✓ <M> new files added
 
-Next: /shipwrights:doctor to validate.
+Next: /shipwrights-doctor to validate.
 ```
 
 ## Migrations contract
