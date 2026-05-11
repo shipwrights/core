@@ -1,9 +1,9 @@
 ---
 name: shipwrights-init
-description: First-run scaffold for a Shipwright project. Auto-detects language, package manager, verify commands, and project layout. Proposes a config + templates, asks per-file decisions on conflicts, lands as one git commit. Non-destructive by default. Invoke as /shipwrights:init [--dry-run | --non-interactive | --force].
+description: First-run scaffold for a Shipwright project. Auto-detects language, package manager, verify commands, and project layout. Proposes a config + templates, asks per-file decisions on conflicts, lands as one git commit. Non-destructive by default. Invoke as /shipwrights-init [--dry-run | --non-interactive | --force].
 ---
 
-# /shipwrights:init — non-destructive project scaffold
+# /shipwrights-init — non-destructive project scaffold
 
 Scaffold `.shipwrights.yml` + workflows + scripts + doc templates into a project. Never overwrites silently. Always lands as one git commit so undo is `git revert HEAD`.
 
@@ -20,7 +20,7 @@ Scaffold `.shipwrights.yml` + workflows + scripts + doc templates into a project
 - Confirm the working tree is clean. Refuse if dirty (unless `--force`).
 - Confirm the cwd is a git repository (`git rev-parse --is-inside-work-tree`).
 - Read existing `package.json` / `Cargo.toml` / `go.mod` / `pyproject.toml` to detect ecosystem.
-- Look for an existing `.shipwrights.yml`. If present, refuse — direct user to `/shipwrights:upgrade`.
+- Look for an existing `.shipwrights.yml`. If present, refuse — direct user to `/shipwrights-upgrade`.
 
 ### 2. Auto-discovery
 
@@ -128,12 +128,12 @@ Print:
 ✓ Scripts: scripts/shipwrights/
 
 Next steps:
-  1. Run /shipwrights:doctor to validate the config + agent availability.
+  1. Run /shipwrights-doctor to validate the config + agent availability.
   2. Create GitHub labels (one-time):
      gh label create tier:trivial --color cccccc
      gh label create tier:minimal --color e8e8e8
      gh label create do-not-auto-merge --color d93f0b
-  3. Drop an epic stub at <state_dir>/E-XX-XX-stub.md with status: idea, then run /shipwrights:epic E-XX-XX.
+  3. Drop an epic stub at <state_dir>/E-XX-XX-stub.md with status: idea, then run /shipwrights-epic E-XX-XX.
 
 Reference: README.md, examples/.
 ```
@@ -149,6 +149,6 @@ Reference: README.md, examples/.
 
 - **Working tree dirty** — refuse, instruct user to commit or stash.
 - **Not in git** — refuse, instruct user to `git init`.
-- **`.shipwrights.yml` already exists** — refuse, point to `/shipwrights:upgrade`.
+- **`.shipwrights.yml` already exists** — refuse, point to `/shipwrights-upgrade`.
 - **Auto-discovery fails** (no recognizable manifest) — fall back to fully-manual prompts.
 - **Template rendering fails on an unrecognized token** — abort, leave nothing written, print the offending token.

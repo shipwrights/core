@@ -36,11 +36,11 @@ gh label create do-not-auto-merge --color d93f0b
 `init` already copied the bundled skills + agents into `.claude/skills/shipwrights/` and `.claude/agents/shipwrights/` for you. Restart your Claude Code session in this project and you'll see five new slash commands:
 
 ```
-/shipwrights:epic <id>     # drive an epic from refine → ship
-/shipwrights:init          # one-time scaffold (you ran this in step 2)
-/shipwrights:status        # see what's in flight across orchestrator sessions
-/shipwrights:upgrade       # bump templates + run config migrations
-/shipwrights:doctor        # validate config + agent availability
+/shipwrights-epic <id>     # drive an epic from refine → ship
+/shipwrights-init          # one-time scaffold (you ran this in step 2)
+/shipwrights-status        # see what's in flight across orchestrator sessions
+/shipwrights-upgrade       # bump templates + run config migrations
+/shipwrights-doctor        # validate config + agent availability
 ```
 
 > **Status:** v0.2.x. The CLI (`init`, `doctor`, `status`, `upgrade`) is stable. `init` and `upgrade` automatically wire `.claude/skills/shipwrights/` and `.claude/agents/shipwrights/` so Claude Code picks up the plugin without manual symlinks. The `shipwright` (singular) CLI alias keeps working through one minor version for v0.1 consumers.
@@ -161,7 +161,7 @@ merge:
 - **Backlog source is pluggable.** `files` and `github-issues` ship in core; [`@shipwrights/source-jira`](https://www.npmjs.com/package/@shipwrights/source-jira) ships as a separate package. The `BacklogSource` interface is documented in `sources/interface.d.ts`.
 - **Guards are pluggable.** `file-length`, `branch-name`, `commit-format` ship in core; project-specific guards (route-access, public-id, etc.) install as separate npm packages.
 - **Init is non-destructive.** Never overwrites your `CLAUDE.md`, existing epics, or repo conventions. Always lands as one git commit so undo is `git revert HEAD`.
-- **Migrations are first-class.** `/shipwrights:upgrade` runs forward-only pure-function migrations on `.shipwrights.yml` so the schema can evolve without each consumer hand-editing their config.
+- **Migrations are first-class.** `/shipwrights-upgrade` runs forward-only pure-function migrations on `.shipwrights.yml` so the schema can evolve without each consumer hand-editing their config.
 - **Cost telemetry is built in.** Per-stage JSONL log with optional per-epic token budget (`warn` / `escalate` / `abort`).
 
 ## The bundled team

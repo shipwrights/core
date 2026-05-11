@@ -8,7 +8,7 @@
   "additionalProperties": false,
   "properties": {
     "version": {
-      "description": "Config schema version. Used by /shipwrights:upgrade migrations.",
+      "description": "Config schema version. Used by /shipwrights-upgrade migrations.",
       "type": "integer",
       "minimum": 1
     },

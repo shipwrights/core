@@ -13,7 +13,7 @@ import {
   existsSync,
   readFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
+import { tmpdir, homedir } from "node:os";
 import { join, dirname } from "node:path";
 import { spawnSync, execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -69,32 +69,63 @@ test("init scaffolds a fresh project in non-interactive mode", () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test("init wires .claude/skills + .claude/agents from the plugin (v0.2.1)", () => {
+test("init wires .claude/skills + .claude/agents flat (v0.2.2)", () => {
   const dir = makeMonorepo();
   const r = sw(["init", "--non-interactive"], dir);
   assert.equal(r.status, 0, r.stderr);
-  // The two managed subtrees exist
-  assert.equal(existsSync(join(dir, ".claude", "skills", "shipwrights")), true);
-  assert.equal(existsSync(join(dir, ".claude", "agents", "shipwrights")), true);
-  // Skills folder has the orchestrator entry point
+  // Skills live directly under .claude/skills/<name>/SKILL.md — flat,
+  // not nested under .claude/skills/shipwrights/. The flat layout is what
+  // Claude Code actually discovers; the nested layout was invisible.
   assert.equal(
-    existsSync(join(dir, ".claude", "skills", "shipwrights", "shipwrights-epic", "SKILL.md")),
-    true,
-  );
-  // Agents folder has the bundled PO
-  assert.equal(
-    existsSync(join(dir, ".claude", "agents", "shipwrights", "product-owner-strategist.md")),
-    true,
-  );
-  // Each managed root has a MANAGED.md
-  assert.equal(
-    existsSync(join(dir, ".claude", "skills", "shipwrights", "MANAGED.md")),
+    existsSync(join(dir, ".claude", "skills", "shipwrights-epic", "SKILL.md")),
     true,
   );
   assert.equal(
-    existsSync(join(dir, ".claude", "agents", "shipwrights", "MANAGED.md")),
+    existsSync(join(dir, ".claude", "skills", "shipwrights-doctor", "SKILL.md")),
     true,
   );
+  // Stages subdirectory comes along (it's part of the skills/ source).
+  assert.equal(
+    existsSync(join(dir, ".claude", "skills", "stages", "refine.md")),
+    true,
+  );
+  // Bundled agents land flat too, unless a user-global version of the
+  // same name exists (which would take precedence and we skip).
+  assert.equal(
+    existsSync(join(dir, ".claude", "agents", "product-owner-strategist.md")) ||
+      // Allow either: the file is present, OR it was skipped because the
+      // test machine has a user-global agent of that name.
+      existsSync(join(homedir(), ".claude", "agents", "product-owner-strategist.md")),
+    true,
+  );
+  // A SHIPWRIGHTS-MANAGED.md marker sits at the skills root.
+  assert.equal(
+    existsSync(join(dir, ".claude", "skills", "SHIPWRIGHTS-MANAGED.md")),
+    true,
+  );
+  // Track file recorded what we installed so the next run can clean up.
+  assert.equal(
+    existsSync(join(dir, ".shipwrights", "installed-files.json")),
+    true,
+  );
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("init cleans up the v0.2.0/v0.2.1 nested layout if present", () => {
+  const dir = makeMonorepo();
+  // Simulate a v0.2.0/v0.2.1 install: write the nested directories first.
+  const nestedSkills = join(dir, ".claude", "skills", "shipwrights");
+  const nestedAgents = join(dir, ".claude", "agents", "shipwrights");
+  mkdirSync(nestedSkills, { recursive: true });
+  mkdirSync(nestedAgents, { recursive: true });
+  writeFileSync(join(nestedSkills, "stale.md"), "old", "utf8");
+  writeFileSync(join(nestedAgents, "stale.md"), "old", "utf8");
+  execSync('git add -A && git commit -q -m "simulate legacy"', { cwd: dir });
+
+  const r = sw(["init", "--non-interactive"], dir);
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(existsSync(nestedSkills), false, ".claude/skills/shipwrights should be removed");
+  assert.equal(existsSync(nestedAgents), false, ".claude/agents/shipwrights should be removed");
   rmSync(dir, { recursive: true, force: true });
 });
 

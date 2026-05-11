@@ -73,8 +73,8 @@ These remain in force from the project's CLAUDE.md / AGENTS.md:
 ## How to invoke
 
 ```
-/shipwrights:epic <id>          # drive a specific epic
-/shipwrights:epic               # pick the next ready epic
-/shipwrights:status             # see what's in flight
-/shipwrights:doctor             # validate config + agents
+/shipwrights-epic <id>          # drive a specific epic
+/shipwrights-epic               # pick the next ready epic
+/shipwrights-status             # see what's in flight
+/shipwrights-doctor             # validate config + agents
 ```
