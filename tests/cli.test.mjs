@@ -248,6 +248,21 @@ test("upgrade is a no-op when at current version", () => {
 	rmSync(dir, { recursive: true, force: true });
 });
 
+test("upgrade refuses dirty worktree before legacy filesystem migration", () => {
+	const dir = makeMonorepo();
+	writeFileSync(join(dir, ".shipwright.yml"), "version: 1\n");
+	execSync('git add -A && git commit -q -m "legacy shipwright config"', {
+		cwd: dir,
+	});
+	writeFileSync(join(dir, "unrelated.txt"), "do not sweep into upgrade\n");
+	const r = sw(["upgrade"], dir);
+	assert.notEqual(r.status, 0);
+	assert.match(r.stderr, /Working tree dirty/);
+	assert.equal(existsSync(join(dir, ".shipwright.yml")), true);
+	assert.equal(existsSync(join(dir, ".shipwrights.yml")), false);
+	rmSync(dir, { recursive: true, force: true });
+});
+
 test("upgrade refreshes managed templates that match the manifest", () => {
 	const dir = makeMonorepo();
 	sw(["init", "--non-interactive"], dir);
@@ -316,9 +331,7 @@ test("upgrade leaves a pre-existing untracked managed template alone (no --force
 	// know about it. Easiest faked by clearing the manifest entry for one file.
 	const manifestPath = join(dir, ".shipwrights-managed.json");
 	const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-	delete manifest.files[
-		"scripts/shipwrights/update-epic-after-merge.mjs"
-	];
+	delete manifest.files["scripts/shipwrights/update-epic-after-merge.mjs"];
 	writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
 	// Make the file diverge from what would render so it doesn't auto-match.
 	writeFileSync(

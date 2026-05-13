@@ -1,12 +1,6 @@
 import assert from "node:assert/strict";
 import { execSync } from "node:child_process";
-import {
-	existsSync,
-	mkdtempSync,
-	readFileSync,
-	rmSync,
-	writeFileSync,
-} from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -182,7 +176,7 @@ test("markdown lock: stale detection flags branches with no recent commits", asy
 		stage: "build",
 		tier: "full",
 	});
-	const rows = await lock.list();
+	const _rows = await lock.list();
 	// With stale_after_hours: 0, anything older than now is stale; the init commit
 	// is the only commit on this branch and it predates "now" by some ms.
 	// Implementation uses git log --since="0 hours ago" which means commits in the

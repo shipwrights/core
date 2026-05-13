@@ -104,7 +104,7 @@ export function createSource({
 			return epics.filter((e) => statuses.includes(e.status));
 		},
 
-		async pickNext(criteria = {}) {
+		async pickNext(_criteria = {}) {
 			const epics = readEpics(epicsDir).map(toBacklogItem);
 			const candidates = [];
 			for (const item of epics) {

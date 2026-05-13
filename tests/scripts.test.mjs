@@ -8,7 +8,6 @@ import {
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
-	readdirSync,
 	readFileSync,
 	rmSync,
 	writeFileSync,
@@ -229,10 +228,9 @@ test("update-epic-after-merge releases the matching in-flight row", () => {
 	assert.doesNotMatch(register, /feature\/e-01/);
 	assert.match(register, /feature\/e-02/);
 	const output = readFileSync(outputPath, "utf8");
-	assert.match(
-		output,
-		/changed_files=.*docs\/backlog\/epics\/E-01-foo.md.*docs\/process\/in-flight.md/,
-	);
+	assert.match(output, /changed_files<<SHIPWRIGHTS_CHANGED_FILES/);
+	assert.match(output, /docs\/backlog\/epics\/E-01-foo.md/);
+	assert.match(output, /docs\/process\/in-flight.md/);
 	rmSync(dir, { recursive: true, force: true });
 });
 
