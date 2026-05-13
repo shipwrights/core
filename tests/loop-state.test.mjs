@@ -218,3 +218,85 @@ test("clearLoop is a no-op when no state file exists", () => {
 test("PHASES is the exhaustive enum", () => {
   assert.deepEqual(PHASES, ["between_epics", "running_epic", "awaiting_merge", "done"]);
 });
+
+// ---------- auto-merge confirmation field ----------
+
+test("startLoop defaults auto_merge_confirmed to false", () => {
+  const cwd = makeTmp();
+  try {
+    const state = startLoop({ cwd });
+    assert.equal(state.auto_merge_confirmed, false);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test("startLoop accepts auto_merge_confirmed=true and persists it", () => {
+  const cwd = makeTmp();
+  try {
+    const state = startLoop({ cwd, auto_merge_confirmed: true });
+    assert.equal(state.auto_merge_confirmed, true);
+    const reloaded = readState({ cwd });
+    assert.equal(reloaded.auto_merge_confirmed, true);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test("startLoop coerces truthy non-boolean to false (defence in depth)", () => {
+  const cwd = makeTmp();
+  try {
+    const state = startLoop({ cwd, auto_merge_confirmed: "yes" });
+    assert.equal(state.auto_merge_confirmed, false);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test("auto_merge_confirmed persists through transitionPhase", () => {
+  const cwd = makeTmp();
+  try {
+    let state = startLoop({ cwd, auto_merge_confirmed: true });
+    state = transitionPhase(state, "running_epic", { current: { ticket: "X" } }, { cwd });
+    assert.equal(state.auto_merge_confirmed, true);
+    state = transitionPhase(state, "awaiting_merge", { current: state.current }, { cwd });
+    assert.equal(state.auto_merge_confirmed, true);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test("auto_merge_confirmed persists through markCurrentCompleted", () => {
+  const cwd = makeTmp();
+  try {
+    let state = startLoop({ cwd, auto_merge_confirmed: true });
+    state = transitionPhase(state, "running_epic", { current: { ticket: "X" } }, { cwd });
+    state = transitionPhase(state, "awaiting_merge", { current: state.current }, { cwd });
+    state = markCurrentCompleted(state, { cwd });
+    assert.equal(state.auto_merge_confirmed, true, "confirmation should survive a completed iteration");
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test("readState rejects state with non-boolean auto_merge_confirmed", () => {
+  const cwd = makeTmp();
+  try {
+    mkdirSync(resolve(cwd, ".shipwrights"), { recursive: true });
+    writeFileSync(
+      resolve(cwd, STATE_FILE),
+      JSON.stringify({
+        version: 1,
+        phase: "between_epics",
+        iteration_count: 0,
+        completed: [],
+        current: null,
+        auto_merge_confirmed: "true", // string, not boolean
+      }),
+      "utf8",
+    );
+    assert.throws(() => readState({ cwd }), /auto_merge_confirmed must be boolean/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});

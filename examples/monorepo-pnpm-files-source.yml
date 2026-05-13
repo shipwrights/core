@@ -155,6 +155,16 @@ merge:
   auto_merge_labels: ["tier:trivial", "tier:minimal"]
   block_label: do-not-auto-merge
 
+loop:
+  # /shipwrights-loop drives multiple tickets through the pipeline sequentially.
+  # If auto_merge is true, the loop calls `gh pr merge --auto --squash` on each
+  # PR it opens — fully autonomous, no human review. A one-time typed
+  # confirmation fires when the loop starts. Branch-protection rules still apply.
+  # Default is false — safer to opt in than to opt out.
+  auto_merge: false
+  poll_interval_seconds: 30
+  stuck_pr_hours: 24
+
 lock:
   kind: markdown
   config:

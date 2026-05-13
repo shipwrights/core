@@ -120,6 +120,31 @@
       }
     },
 
+    "loop": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Behaviour for /shipwrights-loop. Defaults are safe — opt in to auto_merge explicitly.",
+      "properties": {
+        "auto_merge": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, /shipwrights-loop calls `gh pr merge --auto --squash` on each PR it opens (after a one-time typed confirmation per loop). Branch-protection rules still apply. Default false."
+        },
+        "poll_interval_seconds": {
+          "type": "integer",
+          "minimum": 10,
+          "default": 30,
+          "description": "How often /shipwrights-loop polls `gh pr view` for merge state during the awaiting_merge phase."
+        },
+        "stuck_pr_hours": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 24,
+          "description": "If a PR sits OPEN this long with no merge progress, escalate to the user."
+        }
+      }
+    },
+
     "lock": {
       "type": "object",
       "additionalProperties": false,

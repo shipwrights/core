@@ -31,16 +31,52 @@ Valid transitions:
 - `running_epic → awaiting_merge | between_epics | done`
 - `awaiting_merge → between_epics | done`
 
+## Auto-merge warning
+
+When `loop.auto_merge: true` in `.shipwrights.yml` and the loop is starting fresh, print this verbatim before the typed-confirmation prompt. Don't reword it — the wording is the safety mechanism.
+
+```
+⚠ AUTO-MERGE ENABLED
+
+With this turned on, /shipwrights-loop will MERGE pull requests itself.
+
+Every PR opened during this loop will be merged automatically once your
+required CI checks pass. No human review. No manual gate.
+
+This means:
+  • Code reaches your integration branch without a human reading it
+  • Branch-protection rules still apply (required checks, required
+    reviewers if configured)
+  • Cost-cap and stuck-PR safeguards still apply
+  • The `do-not-auto-merge` label on a specific PR still skips auto-merge
+    for it
+  • Once you confirm, this loop runs unattended until done, aborted,
+    a PR is declined, or a safeguard fires
+
+To confirm, type exactly:    yes auto-merge
+
+To cancel, type anything else.
+```
+
+The user must type the literal string `yes auto-merge`. Anything else — including `yes`, `y`, blank, hitting enter on a default — cancels.
+
+If they cancel, do **not** start the loop. Print: "Auto-merge not confirmed. Loop did not start. Either re-run and confirm, or set `loop.auto_merge: false` in `.shipwrights.yml`."
+
 ## Workflow
 
 ### Entry: resume-or-start
 
-1. Load existing state via `readState()`. If a state file is present, you're resuming.
+1. Load existing state via `readState()`. If a state file is present, you're resuming. Skip straight to the appropriate phase; do **not** re-prompt for iteration count or re-show the auto-merge warning — the user already opted in for *this* loop.
 2. Print a one-line resume summary so the user sees where they're picking up.
 3. If no state file → ask: how many iterations?
    - If user passed `N`: use it.
    - If user passed nothing: print the summary (current candidate count, telemetry budget, intrinsic stops) and ask "Run unbounded? [Y/n]". `Y` → `max_iterations: null`. `n` → ask for a number.
-4. Call `startLoop({ max_iterations })` to write the initial state.
+4. **Auto-merge confirmation gate.** Read `loop.auto_merge` from `.shipwrights.yml`. If `true`:
+   - Print the warning verbatim (see "Auto-merge warning" section below).
+   - Read a single line from stdin via Bash (`read -r ANSWER < /dev/tty` on POSIX; on Windows, use AskUserQuestion with no default option — force a typed answer).
+   - Compare exactly to `yes auto-merge` (case-sensitive). Any other input → abort the loop start, print "Auto-merge not confirmed. Loop did not start. Either re-run and confirm, or set `loop.auto_merge: false` in `.shipwrights.yml`."
+   - On confirmation, set `state.auto_merge_confirmed = true` *before* writing the initial state.
+5. Call `startLoop({ max_iterations, auto_merge_confirmed })` to write the initial state.
 
 ### Per-iteration loop
 
@@ -72,17 +108,22 @@ If `/shipwrights-epic` errors or returns "already running" (resume case): inspec
 
 #### Phase: awaiting_merge
 
-1. Poll `gh pr view <num> --json state,mergedAt --jq '.state'` every 30 seconds.
-   - Use `Bash` with `run_in_background: false` for each poll (so you can react). Add a short Bash sleep between polls — total budget cap at 24h elapsed.
-2. Branch on state:
+1. **One-time auto-merge action.** On entry to this phase (not on every poll), if `state.auto_merge_confirmed === true` AND `state.current.auto_merge_requested !== true`:
+   - Inspect PR labels: `gh pr view <num> --json labels --jq '[.labels[].name]'`.
+   - If `do-not-auto-merge` is **not** present, call `gh pr merge <num> --auto --squash` (or whichever strategy is in `merge.strategy`). The `--auto` flag tells GitHub to merge once required checks pass — branch-protection rules are still enforced.
+   - Set `state.current.auto_merge_requested = true` and persist. This idempotency flag prevents re-issuing the merge call on resume.
+   - If `gh pr merge` fails (insufficient permissions, branch protection rejects, etc.), surface the error and pause the loop with options: skip / abort.
+2. Poll `gh pr view <num> --json state,mergedAt --jq '.state'` every `loop.poll_interval_seconds` (default 30).
+   - Use `Bash` with `run_in_background: false` for each poll (so you can react). Add a short Bash sleep between polls — total budget cap at `loop.stuck_pr_hours` (default 24h) elapsed.
+3. Branch on state:
    - **MERGED** → call:
      - `npx @shipwrights/source-jira` programmatic surface to `markStatus("<KEY>", "shipped")` and `attachPR("<KEY>", "<prUrl>")`. (Use `node -e "..."` driving createSource for both.)
      - Call `markCurrentCompleted(state)`. This transitions to `between_epics` (or `done` if cap hit).
    - **CLOSED** (no merge) — PR was declined/closed. Pause and ask:
      - "Continue with next ticket [c] / abort the loop [a]"
-   - **OPEN** + `do-not-auto-merge` label present → keep polling silently.
-   - **OPEN** longer than 24h with no progress → escalate. Pause, ask user.
-3. Between polls, write state to disk so the loop is resumable mid-poll if interrupted.
+   - **OPEN** + `do-not-auto-merge` label present → keep polling silently. (Auto-merge was skipped at step 1 by the same check.)
+   - **OPEN** longer than `loop.stuck_pr_hours` with no progress → escalate. Pause, ask user.
+4. Between polls, write state to disk so the loop is resumable mid-poll if interrupted.
 
 #### Phase: done
 
@@ -121,7 +162,12 @@ Confirm with AskUserQuestion: "Discard current loop and clear state? Tickets alr
 
 ## Hard rules
 
-- **Never merge a PR yourself.** The loop *watches*. Merging is GitHub's job (auto-merge label workflow) or the human's.
+- **Default is opt-in.** The loop *watches* PRs unless `loop.auto_merge: true` is set in `.shipwrights.yml`. With the default config, merging is GitHub's job (auto-merge label workflow) or the human's.
+- **Auto-merge requires typed confirmation.** Never proceed past the confirmation gate on anything other than the literal string `yes auto-merge`. No default-accept. No silent enablement.
+- **Auto-merge confirmation is per-loop, not per-config.** Setting `auto_merge: true` is the *opt-in*; typing the confirmation is the *acknowledgement*. Both are required, every new loop.
+- **`do-not-auto-merge` label always wins.** Even with auto-merge confirmed, a PR carrying the block label is never merged by the loop.
+- **One `gh pr merge` call per PR.** The `auto_merge_requested` flag on `state.current` makes this idempotent across resumes.
+- **Branch protection is GitHub's job.** `--auto` flag respects required checks and required reviewers. If a check fails or a reviewer declines, the merge never happens, and the existing stuck-PR escalation fires.
 - **One commit per markStatus/attachPR.** No batch updates to Jira.
 - **Write state on every transition.** If you interrupt mid-poll the file should reflect where you stopped, not where you started.
 - **Respect Ctrl-C.** Catch SIGINT cleanly; preserve state. The next invocation should be able to resume.
