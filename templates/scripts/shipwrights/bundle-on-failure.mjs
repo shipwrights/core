@@ -10,8 +10,8 @@ import { dirname } from "node:path";
 
 const [, , branch, output] = process.argv;
 if (!branch || !output) {
-  console.error("usage: bundle-on-failure.mjs <branch> <output-path>");
-  process.exit(2);
+	console.error("usage: bundle-on-failure.mjs <branch> <output-path>");
+	process.exit(2);
 }
 
 mkdirSync(dirname(output), { recursive: true });

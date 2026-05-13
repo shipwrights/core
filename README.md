@@ -31,6 +31,10 @@ npx shipwrights doctor
 gh label create tier:trivial --color cccccc
 gh label create tier:minimal --color e8e8e8
 gh label create do-not-auto-merge --color d93f0b
+
+# Optional but recommended when required PR checks must run on bot-created PRs:
+# add a repo secret named SHIPWRIGHTS_BOT_TOKEN with a fine-grained PAT or
+# GitHub App token that can push branches and open PRs.
 ```
 
 `init` already copied the bundled skills + agents into `.claude/skills/shipwrights/` and `.claude/agents/shipwrights/` for you. Restart your Claude Code session in this project and you'll see five new slash commands:

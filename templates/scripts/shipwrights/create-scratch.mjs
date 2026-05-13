@@ -12,24 +12,30 @@ import { parse as parseYaml } from "yaml";
 
 const role = process.argv[2];
 if (!role) {
-  console.error("usage: create-scratch.mjs <role>");
-  process.exit(2);
+	console.error("usage: create-scratch.mjs <role>");
+	process.exit(2);
 }
 
 const config = parseYaml(readFileSync(".shipwrights.yml", "utf8"));
-const featureBranch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf8" }).trim();
+const featureBranch = execSync("git rev-parse --abbrev-ref HEAD", {
+	encoding: "utf8",
+}).trim();
 if (config.branches.integration === featureBranch) {
-  console.error("create-scratch must be run from a feature branch, not the integration branch");
-  process.exit(2);
+	console.error(
+		"create-scratch must be run from a feature branch, not the integration branch",
+	);
+	process.exit(2);
 }
 
 const pattern = config.branches.patterns.scratch ?? "<feature-branch>--<role>";
-const scratchBranch = pattern.replace("<feature-branch>", featureBranch).replace("<role>", role);
+const scratchBranch = pattern
+	.replace("<feature-branch>", featureBranch)
+	.replace("<role>", role);
 
 execSync(`git checkout -b ${scratchBranch}`, { stdio: "inherit" });
 
 if (config.scratch?.push_to_remote) {
-  execSync(`git push -u origin ${scratchBranch}`, { stdio: "inherit" });
+	execSync(`git push -u origin ${scratchBranch}`, { stdio: "inherit" });
 }
 
 console.log(`created scratch branch: ${scratchBranch}`);
