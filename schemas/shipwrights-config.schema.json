@@ -143,6 +143,19 @@
       }
     },
 
+    "spec": {
+      "description": "Configuration for /shipwrights-spec — the spec-first single-task pipeline.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled":            { "type": "boolean", "default": true },
+        "output_dir":         { "type": "string",  "default": "docs/backlog/specs" },
+        "context_depth":      { "enum": ["shallow", "medium", "deep"], "default": "medium" },
+        "enforcement":        { "enum": ["strict", "loose"],          "default": "strict" },
+        "approval_required":  { "type": "boolean", "default": true }
+      }
+    },
+
     "hard_rules": {
       "type": "array",
       "items": { "type": "string" }

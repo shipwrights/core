@@ -1,8 +1,8 @@
 {
   "$schema": "https://docs.claude.com/claude-code/plugin-manifest.schema.json",
   "name": "shipwrights",
-  "version": "0.2.3",
-  "description": "Ship epics with AI specialists. Coordinates designer/architect/QA/reviewer agents across scratch branches and integrates the result into a single PR.",
+  "version": "0.3.0",
+  "description": "Ship epics and ad-hoc specs with AI specialists. Coordinates designer/architect/QA/reviewer agents across scratch branches, integrates the result into a single PR. v0.3 adds /shipwrights-spec — a spec-first single-task pipeline with manifest-grounded analysis and a human approval gate.",
   "author": "Shipwrights contributors",
   "license": "MIT",
   "homepage": "https://github.com/shipwrights/core",
@@ -11,7 +11,11 @@
     "skills/shipwrights-init",
     "skills/shipwrights-status",
     "skills/shipwrights-upgrade",
-    "skills/shipwrights-doctor"
+    "skills/shipwrights-doctor",
+    "skills/shipwrights-spec",
+    "skills/shipwrights-spec-approve",
+    "skills/shipwrights-spec-revise",
+    "skills/shipwrights-spec-cancel"
   ],
   "agents": [
     "agents/product-owner-strategist.md",
@@ -26,6 +30,10 @@
     "shipwrights-init": "skills/shipwrights-init/SKILL.md",
     "shipwrights-status": "skills/shipwrights-status/SKILL.md",
     "shipwrights-upgrade": "skills/shipwrights-upgrade/SKILL.md",
-    "shipwrights-doctor": "skills/shipwrights-doctor/SKILL.md"
+    "shipwrights-doctor": "skills/shipwrights-doctor/SKILL.md",
+    "shipwrights-spec": "skills/shipwrights-spec/SKILL.md",
+    "shipwrights-spec-approve": "skills/shipwrights-spec-approve/SKILL.md",
+    "shipwrights-spec-revise": "skills/shipwrights-spec-revise/SKILL.md",
+    "shipwrights-spec-cancel": "skills/shipwrights-spec-cancel/SKILL.md"
   }
 }
