@@ -56,11 +56,14 @@ function sw(args, cwd, extraEnv = {}) {
 
 function makeFakeGh({ labels = [], secrets = [] }) {
 	const dir = mkdtempSync(join(tmpdir(), "shipwright-gh-"));
-	const script = join(dir, "gh.js");
+	// Single JS body, two thin platform-specific wrappers that delegate to it.
+	// POSIX must use a file named exactly `gh` (no extension) because shell PATH
+	// lookup doesn't try extensions. Windows uses `gh.cmd` because PATHEXT
+	// resolves `gh` → `gh.cmd`.
+	const jsBody = join(dir, "gh.js");
 	writeFileSync(
-		script,
-		`#!/usr/bin/env node
-const args = process.argv.slice(2);
+		jsBody,
+		`const args = process.argv.slice(2);
 if (args[0] === "label" && args[1] === "list") {
   console.log(${JSON.stringify(JSON.stringify(labels.map((name) => ({ name }))))});
   process.exit(0);
@@ -74,7 +77,15 @@ process.exit(1);
 `,
 		"utf8",
 	);
-	chmodSync(script, 0o755);
+	// POSIX wrapper — sh script.
+	const ghPosix = join(dir, "gh");
+	writeFileSync(
+		ghPosix,
+		`#!/bin/sh\nexec node "${jsBody}" "$@"\n`,
+		"utf8",
+	);
+	chmodSync(ghPosix, 0o755);
+	// Windows wrapper — cmd file.
 	writeFileSync(
 		join(dir, "gh.cmd"),
 		`@echo off\r\nnode "%~dp0gh.js" %*\r\n`,
