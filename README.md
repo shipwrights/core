@@ -43,12 +43,13 @@ gh label create do-not-auto-merge --color d93f0b
 /shipwrights-spec-cancel <S-id>   # tombstone a drafted spec
 /shipwrights-init                 # one-time scaffold (you ran this in step 2)
 /shipwrights-connect [source]     # wire a backlog source (jira, files) into .shipwrights.yml
+/shipwrights-loop [N]             # drive N backlog tickets sequentially through the pipeline (resumable)
 /shipwrights-status               # see what's in flight across orchestrator sessions
 /shipwrights-upgrade              # bump templates + run config migrations
 /shipwrights-doctor               # validate config + agent availability
 ```
 
-> **Status:** v0.4.x. CLI (`init`, `doctor`, `status`, `upgrade`, `spec`, `spec-approve`, `spec-revise`, `spec-cancel`) is stable. v0.4 adds `/shipwrights-connect` — runs the backlog source's setup wizard and merges the result into `.shipwrights.yml` so the orchestrator picks up Jira / GitHub Issues / etc. without hand-editing config.
+> **Status:** v0.5.x. v0.5 adds `/shipwrights-loop` — drives multiple Jira tickets through `/shipwrights-epic` sequentially, with a state machine in `.shipwrights/loop-state.json` that survives Claude Code session close. Polls `gh pr view` for merge, then hands off Jira status + PR-link comment, then picks the next ticket. Stops cleanly on budget cap, declined PRs, assignee mismatches, or empty backlogs. v0.4 added `/shipwrights-connect` — runs the backlog source's setup wizard and merges the result into `.shipwrights.yml`.
 
 ## How it works
 
