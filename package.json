@@ -1,6 +1,6 @@
 {
   "name": "@shipwrights/core",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "An orchestration framework for shipping epics with AI specialists. Coordinates designer/architect/QA/reviewer roles across scratch branches, integrates results, and ships PRs — without locking you into one workflow.",
   "type": "module",
   "main": "./lib/index.mjs",
@@ -15,7 +15,11 @@
     "./sources/github-issues": "./sources/github-issues/index.mjs",
     "./guards/file-length": "./guards/file-length.mjs",
     "./guards/branch-name": "./guards/branch-name.mjs",
-    "./guards/commit-format": "./guards/commit-format.mjs"
+    "./guards/commit-format": "./guards/commit-format.mjs",
+    "./lib/project-signals": "./lib/project-signals.mjs",
+    "./lib/propose-agents": "./lib/propose-agents.mjs",
+    "./lib/render-agent": "./lib/render-agent.mjs",
+    "./lib/loop-state": "./lib/loop-state.mjs"
   },
   "files": [
     "agents/",
