@@ -1,8 +1,8 @@
 {
   "$schema": "https://docs.claude.com/claude-code/plugin-manifest.schema.json",
   "name": "shipwrights",
-  "version": "0.5.0",
-  "description": "Ship epics and ad-hoc specs with AI specialists. Coordinates designer/architect/QA/reviewer agents across scratch branches, integrates the result into a single PR. v0.5 adds /shipwrights-loop — drive multiple Jira tickets through the pipeline sequentially with state-machine resumability across sessions.",
+  "version": "0.5.1",
+  "description": "Ship epics and ad-hoc specs with AI specialists. Coordinates designer/architect/QA/reviewer agents across scratch branches, integrates the result into a single PR. v0.5 adds /shipwrights-loop — drive multiple Jira tickets through the pipeline sequentially with state-machine resumability and opt-in auto-merge.",
   "author": "Shipwrights contributors",
   "license": "MIT",
   "homepage": "https://github.com/shipwrights/core",
