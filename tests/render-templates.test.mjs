@@ -66,3 +66,29 @@ test("post-merge workflow stages multiline changed files safely", () => {
 	assert.match(rendered, /git add -- "\$file"/);
 	assert.doesNotMatch(rendered, /git add \$CHANGED_FILES/);
 });
+
+test("workflow templates write operator summaries", () => {
+	const postMerge = renderTemplate(
+		readFileSync(
+			join(
+				process.cwd(),
+				"templates/github/workflows/post-merge-doc-update.yml",
+			),
+			"utf8",
+		),
+		TEMPLATE_CONTEXT,
+	);
+	const autoMerge = renderTemplate(
+		readFileSync(
+			join(process.cwd(), "templates/github/workflows/auto-merge-low-tier.yml"),
+			"utf8",
+		),
+		TEMPLATE_CONTEXT,
+	);
+	assert.match(postMerge, /Shipwrights post-merge doc update/);
+	assert.match(postMerge, /Shipwrights follow-up PR/);
+	assert.match(postMerge, /GITHUB_STEP_SUMMARY/);
+	assert.match(autoMerge, /Shipwrights auto-merge/);
+	assert.match(autoMerge, /GITHUB_STEP_SUMMARY/);
+	assert.match(autoMerge, /Result: auto-merge requested/);
+});

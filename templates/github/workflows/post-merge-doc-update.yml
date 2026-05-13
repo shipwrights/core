@@ -46,6 +46,33 @@ jobs:
           IN_FLIGHT_PATH: "docs/process/in-flight.md"
         run: node scripts/shipwrights/update-epic-after-merge.mjs
 
+      - name: Summarize epic update
+        if: always()
+        env:
+          PR_NUMBER:     ${{ github.event.pull_request.number }}
+          PR_TITLE:      ${{ github.event.pull_request.title }}
+          PR_HEAD_REF:   ${{ github.event.pull_request.head.ref }}
+          CHANGED_FILES: ${{ steps.update.outputs.changed_files }}
+          UPDATE_OUTCOME: ${{ steps.update.outcome }}
+        run: |
+          {
+            echo "### Shipwrights post-merge doc update"
+            echo "- Merged PR: #${PR_NUMBER}"
+            echo "- Source branch: \`${PR_HEAD_REF}\`"
+            echo "- Title: ${PR_TITLE}"
+            echo "- Update step: ${UPDATE_OUTCOME}"
+            if [ "$UPDATE_OUTCOME" != "success" ]; then
+              echo "- Result: update script failed before producing follow-up changes"
+            elif [ -z "$CHANGED_FILES" ]; then
+              echo "- Result: no doc changes needed"
+            else
+              echo "- Changed files:"
+              while IFS= read -r file; do
+                [ -n "$file" ] && echo "  - \`${file}\`"
+              done <<< "$CHANGED_FILES"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Open follow-up PR with the epic update
         if: steps.update.outputs.changed_files != ''
         env:
@@ -70,6 +97,14 @@ jobs:
             --body "Auto-generated follow-up to record merged PR #${PR_NUMBER}." \
             --label {{merge.auto_merge_labels.0}}
           FOLLOWUP_PR="$(gh pr view "$BRANCH" --repo "${{ github.repository }}" --json number --jq '.number')"
+          {
+            echo "### Shipwrights follow-up PR"
+            echo "- Branch: \`${BRANCH}\`"
+            echo "- PR: #${FOLLOWUP_PR}"
+            echo "- Label: \`{{merge.auto_merge_labels.0}}\`"
+            echo "- Auto-merge strategy: \`{{merge.strategy}}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
           gh pr merge --auto --{{merge.strategy}} --delete-branch \
             --repo "${{ github.repository }}" \
             "$FOLLOWUP_PR"
+          echo "- Result: auto-merge requested" >> "$GITHUB_STEP_SUMMARY"

@@ -34,9 +34,23 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
+          {
+            echo "### Shipwrights auto-merge"
+            echo "- PR: #${PR_NUMBER}"
+            echo "- Action: disable"
+            echo "- Reason: \`{{merge.block_label}}\` label is present"
+          } >> "$GITHUB_STEP_SUMMARY"
+          set +e
           gh pr merge --disable-auto \
             --repo "${{ github.repository }}" \
-            "$PR_NUMBER" || true
+            "$PR_NUMBER"
+          status=$?
+          if [ "$status" -eq 0 ]; then
+            echo "- Result: auto-merge disabled" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Result: disable request failed or auto-merge was not enabled" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit 0
 
   enable-auto-merge:
     if: >-
@@ -54,6 +68,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
+          {
+            echo "### Shipwrights auto-merge"
+            echo "- PR: #${PR_NUMBER}"
+            echo "- Action: enable"
+            echo "- Strategy: \`{{merge.strategy}}\`"
+            echo "- Labels: \`{{merge.auto_merge_labels.0}}\`, \`{{merge.auto_merge_labels.1}}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
           gh pr merge --auto --{{merge.strategy}} --delete-branch \
             --repo "${{ github.repository }}" \
             "$PR_NUMBER"
+          echo "- Result: auto-merge requested" >> "$GITHUB_STEP_SUMMARY"
