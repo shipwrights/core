@@ -42,12 +42,13 @@ gh label create do-not-auto-merge --color d93f0b
 /shipwrights-spec-revise <S-id> … # revise a drafted spec with a note
 /shipwrights-spec-cancel <S-id>   # tombstone a drafted spec
 /shipwrights-init                 # one-time scaffold (you ran this in step 2)
+/shipwrights-connect [source]     # wire a backlog source (jira, files) into .shipwrights.yml
 /shipwrights-status               # see what's in flight across orchestrator sessions
 /shipwrights-upgrade              # bump templates + run config migrations
 /shipwrights-doctor               # validate config + agent availability
 ```
 
-> **Status:** v0.3.x. CLI (`init`, `doctor`, `status`, `upgrade`, `spec`, `spec-approve`, `spec-revise`, `spec-cancel`) is stable. `init` and `upgrade` automatically wire `.claude/skills/` and `.claude/agents/` so Claude Code picks up the plugin without manual symlinks.
+> **Status:** v0.4.x. CLI (`init`, `doctor`, `status`, `upgrade`, `spec`, `spec-approve`, `spec-revise`, `spec-cancel`) is stable. v0.4 adds `/shipwrights-connect` — runs the backlog source's setup wizard and merges the result into `.shipwrights.yml` so the orchestrator picks up Jira / GitHub Issues / etc. without hand-editing config.
 
 ## How it works
 

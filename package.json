@@ -1,6 +1,6 @@
 {
   "name": "@shipwrights/core",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "An orchestration framework for shipping epics with AI specialists. Coordinates designer/architect/QA/reviewer roles across scratch branches, integrates results, and ships PRs — without locking you into one workflow.",
   "type": "module",
   "main": "./lib/index.mjs",
