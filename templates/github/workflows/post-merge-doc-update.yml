@@ -58,7 +58,9 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add $CHANGED_FILES
+          while IFS= read -r file; do
+            [ -n "$file" ] && git add -- "$file"
+          done <<< "$CHANGED_FILES"
           git commit -m "chore(ops): record merged PR #${PR_NUMBER}"
           git push -u origin "$BRANCH"
           gh pr create \

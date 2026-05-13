@@ -112,7 +112,10 @@ const out = process.env.GITHUB_OUTPUT;
 if (out) {
 	const files = [...changedFiles];
 	appendFileSync(out, `changed_file=${files[0]}\n`);
-	appendFileSync(out, `changed_files=${files.join(" ")}\n`);
+	appendFileSync(
+		out,
+		`changed_files<<SHIPWRIGHTS_CHANGED_FILES\n${files.join("\n")}\nSHIPWRIGHTS_CHANGED_FILES\n`,
+	);
 }
 
 function releaseInFlight({ path, branch, epicId }) {
