@@ -43,13 +43,14 @@ gh label create do-not-auto-merge --color d93f0b
 /shipwrights-spec-cancel <S-id>   # tombstone a drafted spec
 /shipwrights-init                 # one-time scaffold (you ran this in step 2)
 /shipwrights-connect [source]     # wire a backlog source (jira, files) into .shipwrights.yml
+/shipwrights-craft-agent          # generate project-specific agents from detected signals
 /shipwrights-loop [N]             # drive N backlog tickets sequentially through the pipeline (resumable)
 /shipwrights-status               # see what's in flight across orchestrator sessions
 /shipwrights-upgrade              # bump templates + run config migrations
 /shipwrights-doctor               # validate config + agent availability
 ```
 
-> **Status:** v0.5.x. v0.5 adds `/shipwrights-loop` — drives multiple Jira tickets through `/shipwrights-epic` sequentially, with a state machine in `.shipwrights/loop-state.json` that survives Claude Code session close. Polls `gh pr view` for merge, then hands off Jira status + PR-link comment, then picks the next ticket. Stops cleanly on budget cap, declined PRs, assignee mismatches, or empty backlogs. v0.4 added `/shipwrights-connect` — runs the backlog source's setup wizard and merges the result into `.shipwrights.yml`.
+> **Status:** v0.6.x. v0.6 adds `/shipwrights-craft-agent` — scans the project (`package.json`, framework, conventions, domain keywords) and proposes a set of tailored agents (e.g., `arms-frontend-vue-specialist`, `arms-pdf-rendering-specialist`). Drops them into `.claude/agents/` so Claude Code discovers them natively and the orchestrator can dispatch by name. Bundled agents are still available; specialists complement them. v0.5 added `/shipwrights-loop` for resumable multi-ticket pipelines with opt-in auto-merge. v0.4 added `/shipwrights-connect` for backlog-source setup.
 
 ## How it works
 
