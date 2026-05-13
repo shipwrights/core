@@ -36,14 +36,18 @@ gh label create do-not-auto-merge --color d93f0b
 `init` already copied the bundled skills + agents into `.claude/skills/shipwrights/` and `.claude/agents/shipwrights/` for you. Restart your Claude Code session in this project and you'll see five new slash commands:
 
 ```
-/shipwrights-epic <id>     # drive an epic from refine → ship
-/shipwrights-init          # one-time scaffold (you ran this in step 2)
-/shipwrights-status        # see what's in flight across orchestrator sessions
-/shipwrights-upgrade       # bump templates + run config migrations
-/shipwrights-doctor        # validate config + agent availability
+/shipwrights-epic <id>            # drive a backlog epic from refine → ship
+/shipwrights-spec <description>   # ad-hoc task: spec-first, with approval gate
+/shipwrights-spec-approve <S-id>  # accept a drafted spec, proceed to build
+/shipwrights-spec-revise <S-id> … # revise a drafted spec with a note
+/shipwrights-spec-cancel <S-id>   # tombstone a drafted spec
+/shipwrights-init                 # one-time scaffold (you ran this in step 2)
+/shipwrights-status               # see what's in flight across orchestrator sessions
+/shipwrights-upgrade              # bump templates + run config migrations
+/shipwrights-doctor               # validate config + agent availability
 ```
 
-> **Status:** v0.2.x. The CLI (`init`, `doctor`, `status`, `upgrade`) is stable. `init` and `upgrade` automatically wire `.claude/skills/shipwrights/` and `.claude/agents/shipwrights/` so Claude Code picks up the plugin without manual symlinks. The `shipwright` (singular) CLI alias keeps working through one minor version for v0.1 consumers.
+> **Status:** v0.3.x. CLI (`init`, `doctor`, `status`, `upgrade`, `spec`, `spec-approve`, `spec-revise`, `spec-cancel`) is stable. `init` and `upgrade` automatically wire `.claude/skills/` and `.claude/agents/` so Claude Code picks up the plugin without manual symlinks.
 
 ## How it works
 
@@ -72,6 +76,68 @@ gh label create do-not-auto-merge --color d93f0b
 
 Tiers (`trivial / minimal / light / full`) skip stages automatically — a docs typo doesn't need a PO + architect + QA pipeline.
 
+## Two entry points: `/shipwrights-epic` vs `/shipwrights-spec`
+
+The pipeline above (refine → ship) is shared. Two ways to get into it:
+
+| | `/shipwrights-epic` | `/shipwrights-spec` (new in v0.3) |
+|---|---|---|
+| **Input** | An id from your backlog (`E-04-01`) | A free-form task description ("add forgot-password") |
+| **Pre-implementation analysis** | None — goes straight into refine | **Mandatory**: discover → spec → analyze → plan, with citation enforcement |
+| **Human gate before code is written** | No (PO refines, then auto-proceeds) | Yes — default on, `--auto` to bypass |
+| **Output before approval** | The epic file gets a refined `status` | A plan document at `docs/backlog/specs/S-<id>-<slug>.md` you read and decide on |
+| **When it fits** | You already have a refined backlog | You have a task in your head and want grounded analysis before any source file is touched |
+| **Cost** | Lower (no upfront analysis) | Higher (discover + spec + analyze + plan all run before build) |
+
+### `/shipwrights-spec` — spec-first pipeline
+
+```
+┌──────────┐  ┌──────┐  ┌─────────┐  ┌──────┐  ┌────────────────┐
+│ Discover │─▶│ Spec │─▶│ Analyze │─▶│ Plan │─▶│ ★ Approval ★   │─▶ (existing pipeline)
+└──────────┘  └──────┘  └─────────┘  └──────┘  └────────────────┘
+  read-only    PO       architects   write       /shipwrights-spec-approve
+  manifest    task-     read-only,   plan        /shipwrights-spec-revise
+  of every    mode      cite path:   doc         /shipwrights-spec-cancel
+  file read             line refs    + run
+                        from         strict
+                        manifest     citation
+                                     enforcer
+```
+
+The **manifest** is the contract: Stage 1 records every file the agent reads. Stages 2–3 may only cite paths from the manifest. Stage 4 runs a strict enforcer that blocks the pipeline if any `path:line` claim in the plan's `## Codebase analysis` or `## Architecture` sections doesn't appear in the manifest. The result: agents can't hallucinate code references.
+
+Example flow:
+
+```bash
+shipwrights spec "add a forgot-password flow with email verification"
+#   → allocates S-2026-05-13-a8f3
+#   → writes input to .shipwrights/specs/S-2026-05-13-a8f3.input.md
+
+# In Claude Code:
+/shipwrights-spec S-2026-05-13-a8f3
+#   → discover → spec → analyze → plan
+#   → writes docs/backlog/specs/S-2026-05-13-a8f3-forgot-password.md
+#   → halts at approval gate
+
+# Read the plan, then one of:
+/shipwrights-spec-approve S-2026-05-13-a8f3       # proceed to build
+/shipwrights-spec-revise S-2026-05-13-a8f3 "use Redis for tokens, not signed JWTs"
+/shipwrights-spec-cancel S-2026-05-13-a8f3
+```
+
+Autonomous mode: `shipwrights spec --auto "..."` — confirmation banner prints budget + safety nets, requires a `y` to proceed; the plan still gets written for audit but the build runs without review.
+
+Config knobs (`.shipwrights.yml`):
+
+```yaml
+spec:
+  enabled: true
+  output_dir: docs/backlog/specs   # plan documents land here
+  context_depth: medium            # shallow | medium | deep — bounds discover
+  enforcement: strict              # strict | loose (loose = warn, don't block)
+  approval_required: true          # --auto bypasses
+```
+
 ## When to reach for Shipwrights (vs alternatives)
 
 | Tool | What it is | When it fits | When Shipwrights fits better |
@@ -87,10 +153,15 @@ Shipwrights is closest in shape to **Prisma** — declarative config (`schema.pr
 ## CLI reference
 
 ```bash
-shipwrights init       [--dry-run | --non-interactive | --force]
+shipwrights init           [--dry-run | --non-interactive | --force]
 shipwrights doctor
 shipwrights status
 shipwrights upgrade
+
+shipwrights spec <description>         [--auto] [--context-depth shallow|medium|deep] [--output-dir <path>]
+shipwrights spec-approve <S-id>
+shipwrights spec-revise  <S-id> <note>
+shipwrights spec-cancel  <S-id>
 ```
 
 | Command | What |
@@ -99,6 +170,10 @@ shipwrights upgrade
 | `doctor` | Validate `.shipwrights.yml`, resolve agent refs, check guards / lock service / telemetry / GitHub labels. Exits non-zero on fail; warns are tolerated. |
 | `status` | Read the in-flight register. Flags stale entries (>48h with no commits). |
 | `upgrade` | Bump templates + run config migrations. 3-way merges against your local edits. Lands as one git commit. v0.2.0 also auto-renames legacy v0.1 paths (`.shipwright.yml` → `.shipwrights.yml`, etc.). |
+| `spec` | Allocate a new spec id, write the task input, hand off to the orchestrator skill in Claude Code. `--auto` confirms once then proceeds without the approval gate. |
+| `spec-approve` | Re-run citation enforcement on the drafted plan; flip status to `approved`; commit. |
+| `spec-revise` | Snapshot the current plan; append your note to the input; bump revisions; leave status at `drafted` so the next `/shipwrights-spec <id>` re-runs analyze + plan. |
+| `spec-cancel` | Tombstone a drafted (or pre-shipped) spec. File stays in place for audit. |
 
 > The `shipwright` (singular) CLI alias keeps working for one minor-version cycle so v0.1 consumers can migrate without breakage. Run `shipwrights upgrade` to migrate file paths.
 
@@ -200,14 +275,25 @@ node --test "tests/**/*.test.mjs"
 
 | | |
 |---|---|
-| **Stable** | CLI (`init`, `doctor`, `status`, `upgrade`), config schema, source-adapter interface, guard interface, scratch-branch scripts |
-| **Stable but evolving** | Bundled agent prompts (may sharpen between minor versions) |
-| **Pre-1.0** | Pipeline engine internals, lock-service backends, telemetry shape |
+| **Stable** | CLI (`init`, `doctor`, `status`, `upgrade`, `spec`, `spec-approve`, `spec-revise`, `spec-cancel`), config schema, source-adapter interface, guard interface, scratch-branch scripts, manifest + plan-document format |
+| **Stable but evolving** | Bundled agent prompts (may sharpen between minor versions); citation-enforcement regex (may expand) |
+| **Pre-1.0** | Pipeline engine internals, lock-service backends, telemetry shape, spec orchestrator skill (works in principle; first real-task validation pending) |
 | **Planned** | Browser-reviewer Stage 6b end-to-end (needs dev-server lifecycle wiring), more source adapters |
 
 API may evolve before v1.0. Pin exact versions until v1.
 
-## Migrating from v0.1.x
+## Migrating
+
+### v0.2 → v0.3 (current)
+
+No breaking changes. v0.3 adds the `/shipwrights-spec` pipeline alongside `/shipwrights-epic`; existing epic flows are unchanged. To pick up the new skills:
+
+```bash
+pnpm add -D @shipwrights/core@latest
+npx shipwrights upgrade   # refreshes .claude/skills with spec-* commands
+```
+
+### v0.1 → v0.2
 
 v0.2.0 renamed CLI / slash commands / config filename / script folders from singular `shipwright` to plural `shipwrights` (to match the `@shipwrights` npm scope). One step:
 
