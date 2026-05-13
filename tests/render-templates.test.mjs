@@ -1,6 +1,19 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
+import { parse as parseYaml } from "yaml";
 import { renderTemplate } from "../lib/render-templates.mjs";
+
+const TEMPLATE_CONTEXT = {
+	branches: { integration: "dev" },
+	backlog: { state_dir: "docs/backlog/epics" },
+	merge: {
+		strategy: "rebase",
+		auto_merge_labels: ["tier:trivial", "tier:minimal"],
+		block_label: "do-not-auto-merge",
+	},
+};
 
 test("substitutes simple tokens", () => {
 	const out = renderTemplate("Hello {{name}}", { name: "world" });
@@ -28,4 +41,28 @@ test("preserves GitHub Actions ${{ ... }} unchanged", () => {
 
 test("throws on unresolved token", () => {
 	assert.throws(() => renderTemplate("{{missing}}", {}));
+});
+
+test("renders GitHub workflow templates as parseable workflow YAML", () => {
+	for (const rel of [
+		"templates/github/workflows/auto-merge-low-tier.yml",
+		"templates/github/workflows/post-merge-doc-update.yml",
+	]) {
+		const template = readFileSync(join(process.cwd(), rel), "utf8");
+		const rendered = renderTemplate(template, TEMPLATE_CONTEXT);
+		assert.doesNotMatch(rendered, /(?<!\$)\{\{/);
+		assert.match(rendered, /\$\{\{ secrets\./);
+		assert.doesNotThrow(() => parseYaml(rendered), rel);
+	}
+});
+
+test("post-merge workflow stages multiline changed files safely", () => {
+	const template = readFileSync(
+		join(process.cwd(), "templates/github/workflows/post-merge-doc-update.yml"),
+		"utf8",
+	);
+	const rendered = renderTemplate(template, TEMPLATE_CONTEXT);
+	assert.match(rendered, /while IFS= read -r file/);
+	assert.match(rendered, /git add -- "\$file"/);
+	assert.doesNotMatch(rendered, /git add \$CHANGED_FILES/);
 });

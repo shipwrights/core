@@ -6,6 +6,7 @@
 import assert from "node:assert/strict";
 import { execSync, spawnSync } from "node:child_process";
 import {
+	chmodSync,
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
@@ -14,7 +15,7 @@ import {
 	writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { delimiter, dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -51,6 +52,39 @@ function sw(args, cwd, extraEnv = {}) {
 		encoding: "utf8",
 		env: { ...process.env, ...extraEnv },
 	});
+}
+
+function makeFakeGh({ labels = [], secrets = [] }) {
+	const dir = mkdtempSync(join(tmpdir(), "shipwright-gh-"));
+	const script = join(dir, "gh.js");
+	writeFileSync(
+		script,
+		`#!/usr/bin/env node
+const args = process.argv.slice(2);
+if (args[0] === "label" && args[1] === "list") {
+  console.log(${JSON.stringify(JSON.stringify(labels.map((name) => ({ name }))))});
+  process.exit(0);
+}
+if (args[0] === "secret" && args[1] === "list") {
+  console.log(${JSON.stringify(JSON.stringify(secrets.map((name) => ({ name }))))});
+  process.exit(0);
+}
+console.error("unexpected gh call: " + args.join(" "));
+process.exit(1);
+`,
+		"utf8",
+	);
+	chmodSync(script, 0o755);
+	writeFileSync(
+		join(dir, "gh.cmd"),
+		`@echo off\r\nnode "%~dp0gh.js" %*\r\n`,
+		"utf8",
+	);
+	return {
+		dir,
+		env: { PATH: `${dir}${delimiter}${process.env.PATH}` },
+		cleanup: () => rmSync(dir, { recursive: true, force: true }),
+	};
 }
 
 test("init scaffolds a fresh project in non-interactive mode", () => {
@@ -197,6 +231,38 @@ test("doctor passes after init on a monorepo (with one warn for missing gh)", ()
 	assert.equal(r.status, 0, r.stderr);
 	assert.match(r.stdout, /Config: valid/);
 	assert.match(r.stdout, /\b0 fail\b/);
+	rmSync(dir, { recursive: true, force: true });
+});
+
+test("doctor warns when auto-merge is configured without bot token secret", () => {
+	const dir = makeMonorepo();
+	const gh = makeFakeGh({
+		labels: ["tier:trivial", "tier:minimal", "do-not-auto-merge"],
+		secrets: [],
+	});
+	sw(["init", "--non-interactive"], dir);
+	const r = sw(["doctor"], dir, gh.env);
+	assert.equal(r.status, 0, r.stderr);
+	assert.match(r.stdout, /GitHub labels: all 3 present/);
+	assert.match(r.stdout, /GitHub secret: SHIPWRIGHTS_BOT_TOKEN/);
+	assert.match(r.stdout, /missing; bot-created follow-up PRs/);
+	assert.match(r.stdout, /\b0 fail\b/);
+	gh.cleanup();
+	rmSync(dir, { recursive: true, force: true });
+});
+
+test("doctor passes bot-token readiness when secret is configured", () => {
+	const dir = makeMonorepo();
+	const gh = makeFakeGh({
+		labels: ["tier:trivial", "tier:minimal", "do-not-auto-merge"],
+		secrets: ["SHIPWRIGHTS_BOT_TOKEN"],
+	});
+	sw(["init", "--non-interactive"], dir);
+	const r = sw(["doctor"], dir, gh.env);
+	assert.equal(r.status, 0, r.stderr);
+	assert.match(r.stdout, /GitHub secret: SHIPWRIGHTS_BOT_TOKEN configured/);
+	assert.match(r.stdout, /\b0 warn, 0 fail\b/);
+	gh.cleanup();
 	rmSync(dir, { recursive: true, force: true });
 });
 
