@@ -79,11 +79,7 @@ process.exit(1);
 	);
 	// POSIX wrapper — sh script.
 	const ghPosix = join(dir, "gh");
-	writeFileSync(
-		ghPosix,
-		`#!/bin/sh\nexec node "${jsBody}" "$@"\n`,
-		"utf8",
-	);
+	writeFileSync(ghPosix, `#!/bin/sh\nexec node "${jsBody}" "$@"\n`, "utf8");
 	chmodSync(ghPosix, 0o755);
 	// Windows wrapper — cmd file.
 	writeFileSync(
@@ -124,7 +120,9 @@ test("init scaffolds a fresh project in non-interactive mode", () => {
 	);
 	assert.match(postMerge, /SHIPWRIGHTS_BOT_TOKEN/);
 	assert.match(postMerge, /gh pr merge --auto/);
+	assert.match(postMerge, /Shipwrights post-merge doc update/);
 	assert.match(autoMerge, /disable-auto-merge/);
+	assert.match(autoMerge, /Shipwrights auto-merge/);
 	// Single git commit was made
 	const log = execSync("git log --oneline", { cwd: dir, encoding: "utf8" });
 	assert.match(log, /chore: install @shipwrights\/core/);
