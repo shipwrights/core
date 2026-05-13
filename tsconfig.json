@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": false,
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"noEmit": true,
+		"target": "ES2022"
+	},
+	"include": [
+		"agents/**/*.md",
+		"bin/**/*.mjs",
+		"guards/**/*.mjs",
+		"lib/**/*.mjs",
+		"sources/**/*.mjs",
+		"tests/**/*.mjs"
+	]
+}
