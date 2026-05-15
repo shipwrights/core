@@ -318,6 +318,10 @@ That command auto-renames `.shipwright.yml` → `.shipwrights.yml`, `.shipwright
 - Jira adapter: https://www.npmjs.com/package/@shipwrights/source-jira
 - example consumer (a11y-lab): https://github.com/dacostaaboagye/a11y-lab
 
+## Contributing
+
+We welcome contributions. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for how to set up, run tests, and open a PR. Security issues should be reported privately — see [`SECURITY.md`](SECURITY.md). All participants follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## License
 
 MIT

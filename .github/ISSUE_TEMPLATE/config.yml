@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/shipwrights/core/security/advisories/new
+    about: Don't open public issues for security problems. Use Private Vulnerability Reporting.
+  - name: Documentation question
+    url: https://github.com/shipwrights/core#readme
+    about: Most "how do I X" answers live in the README.
