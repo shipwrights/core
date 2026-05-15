@@ -1,0 +1,13 @@
+# CODEOWNERS — auto-request review from owners when matching paths change.
+# Syntax: <pattern>  <owner>...
+# Lower entries override higher ones, so put the broadest pattern first.
+# Docs: https://docs.github.com/en/repositories/managing-your-repositories-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything not matched below.
+*                       @dacostaaboagye
+
+# When a second maintainer joins, add lines below that scope them to the
+# areas they own. Examples:
+#   /lib/spec/           @second-maintainer
+#   /skills/             @second-maintainer
+#   /templates/          @second-maintainer
